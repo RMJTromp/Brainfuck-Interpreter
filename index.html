@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Brainfuck Interpreter</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+    <section>
+        <div class="container">
+            <div class="nav">
+                <button data-action="learn">Learn Brainfuck</button>
+                <button data-action="ascii-table">ASCII table</button>
+                <button data-action="encode">Encode Text</button>
+            </div>
+            <div class="input">
+                <div class="textarea" contenteditable="true">++++++++++[>+>+++>+++++++>++++++++++<<<<-]>>>++.>+.+++++++..+++.<<++.>+++++++++++++++.>.+++.------.--------.</div>
+                <div class="controls">
+                    <button class="info" data-action="debug" disabled>Debug <i class="codicon codicon-debug-alt"></i></button>
+                    <button class="success" data-action="run" disabled>Run <i class="codicon codicon-play"></i></button>
+                </div>
+            </div>
+            <div class="output">
+                <div class="textarea"></div>
+            </div>
+        </div>
+    </section>
+    <script src="./assets/js/script.js" type="module"></script>
+</body>
+</html>

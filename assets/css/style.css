@@ -1,0 +1,432 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+@import url("./codicon.css");
+.primary {
+  --r: 88;
+  --g: 101;
+  --b: 242;
+  --color: rgb(var(--r), var(--g), var(--b)) ;
+}
+
+.success {
+  --r: 59;
+  --g: 165;
+  --b: 93;
+  --color: rgb(var(--r), var(--g), var(--b)) ;
+}
+
+.danger {
+  --r: 237;
+  --g: 66;
+  --b: 69;
+  --color: rgb(var(--r), var(--g), var(--b)) ;
+}
+
+.warning {
+  --r: 250;
+  --g: 168;
+  --b: 26;
+  --color: rgb(var(--r), var(--g), var(--b)) ;
+}
+
+.info {
+  --r: 79;
+  --g: 84;
+  --b: 92;
+  --color: rgb(var(--r), var(--g), var(--b)) ;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0f0e17;
+  color: #DCDDDE;
+  font-family: "Roboto", sans-serif;
+}
+body > section {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+}
+body > section > div.container {
+  margin: 20px;
+  max-width: 1200px;
+  position: relative;
+  width: 100%;
+  width: -webkit-fill-available;
+}
+body > section > div.container > div.nav {
+  margin: 20px;
+  justify-content: center;
+  display: flex;
+}
+body > section > div.container > div.debugger {
+  display: grid;
+  max-width: 800px;
+  margin: 30px auto;
+}
+body > section > div.container > div.debugger > .cells-wrapper {
+  max-width: 800px;
+  overflow: hidden;
+}
+body > section > div.container > div.debugger > .cells-wrapper > div.cells {
+  display: inline-flex;
+  position: relative;
+}
+body > section > div.container > div.debugger > .cells-wrapper > div.cells > div.cell {
+  position: relative;
+  border: 2px solid white;
+  font-weight: bolder;
+  font-size: 40px;
+  aspect-ratio: 1/1;
+  text-align: center;
+  width: 50px;
+  margin: 30px 0;
+}
+body > section > div.container > div.debugger > .cells-wrapper > div.cells > div.cell > span {
+  color: gray;
+  user-select: none;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, calc(-100% - 10px));
+  font-size: 12px;
+  line-height: initial;
+}
+body > section > div.container > div.debugger > .cells-wrapper > div.cells > div.cell > p {
+  font-size: 20px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, calc(-50% - 0.3em));
+}
+body > section > div.container > div.debugger > .cells-wrapper > div.cells > div.cell > small {
+  user-select: none;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -3px);
+  font-size: 12px;
+  line-height: initial;
+}
+body > section > div.container > div.debugger > .cells-wrapper > div.cells > i.pointer {
+  position: absolute;
+  top: 50%;
+  transform: translate(calc(26px - 50%), 30px);
+}
+body > section > div.container > div.debugger > div.controls {
+  display: flex;
+  justify-content: center;
+}
+body > section > div.container > div.input {
+  display: grid;
+  max-width: 800px;
+  margin: 0 auto;
+}
+body > section > div.container > div.input:before {
+  content: "Input";
+  margin: 10px;
+}
+body > section > div.container > div.input > div.textarea {
+  display: block;
+  padding: 11px 20px;
+  background-color: #e3e3e30a;
+  height: auto;
+  border-radius: 8px;
+  margin: 0 auto;
+  line-height: 1.5em;
+  min-height: 24px;
+  width: 100%;
+  width: -webkit-fill-available;
+  max-width: 760px;
+}
+body > section > div.container > div.input > div.textarea span:is([operator]) {
+  letter-spacing: 2px;
+  border: 2px solid transparent;
+  padding: 0 1px;
+  background-color: rgba(var(--r), var(--g), var(--b), 0.3);
+}
+body > section > div.container > div.input > div.textarea span:is([operator])[operator="+"] {
+  --r: 59;
+  --g: 165;
+  --b: 93;
+}
+body > section > div.container > div.input > div.textarea span:is([operator])[operator="-"] {
+  --r: 237;
+  --g: 64;
+  --b: 67;
+}
+body > section > div.container > div.input > div.textarea span:is([operator])[operator=">"], body > section > div.container > div.input > div.textarea span:is([operator])[operator="<"] {
+  --r: 254;
+  --g: 215;
+  --b: 72;
+}
+body > section > div.container > div.input > div.textarea span:is([operator])[operator="["], body > section > div.container > div.input > div.textarea span:is([operator])[operator="]"] {
+  --r: 250;
+  --g: 168;
+  --b: 26;
+}
+body > section > div.container > div.input > div.textarea span:is([operator])[operator="."] {
+  --r: 88;
+  --g: 101;
+  --b: 242;
+}
+body > section > div.container > div.input > div.textarea span:is([operator])[operator=","] {
+  --r: 134;
+  --g: 220;
+  --b: 197;
+}
+body > section > div.container > div.input > div.textarea span:is([operator]):hover, body > section > div.container > div.input > div.textarea span:is([operator])[emphasis] {
+  border: 2px solid rgba(var(--r), var(--g), var(--b), 0.7);
+}
+body > section > div.container > div.input > div.controls {
+  display: flex;
+  justify-content: right;
+  padding: 10px 20px;
+  gap: 10px;
+}
+body > section > div.container > div.output {
+  display: grid;
+  max-width: 800px;
+  margin: 0 auto;
+}
+body > section > div.container > div.output:before {
+  content: "Output";
+  margin: 10px;
+}
+body > section > div.container > div.output > div.textarea {
+  display: block;
+  padding: 11px 20px;
+  background-color: #e3e3e30a;
+  height: auto;
+  border-radius: 8px;
+  margin: 0 auto;
+  line-height: 1.5em;
+  min-height: 24px;
+  width: 100%;
+  width: -webkit-fill-available;
+  max-width: 760px;
+}
+body > section > div.container > div.output > div.textarea:before {
+  content: ">";
+  margin-right: 0.5em;
+}
+body > .tooltip {
+  background: #cacacc;
+  position: absolute;
+  color: #0f0e17;
+  padding: 8px;
+  border-radius: 3px;
+  max-width: 350px;
+  transform: translate(-50%, calc(-100% - 1.5em));
+}
+body > .tooltip:after {
+  content: " ";
+  background: #cacacc;
+  height: 10px;
+  width: 10px;
+  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 50%) rotate(45deg);
+  z-index: -1;
+}
+
+button, a {
+  cursor: pointer;
+  text-align: center;
+  vertical-align: middle;
+  min-width: 60px;
+  min-height: 32px;
+  width: auto;
+  transition: background-color 0.17s ease, color 0.17s ease;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  color: white;
+  background-color: transparent;
+  padding: 11px 16px;
+  border-radius: 8px;
+  display: inline-flex;
+  gap: 0.5em;
+  justify-content: center;
+}
+button:is(a), a:is(a) {
+  cursor: default;
+  font-weight: normal;
+  line-height: 32px;
+}
+button:is(a)[href], a:is(a)[href] {
+  cursor: pointer;
+  text-decoration: none;
+}
+button.block, a.block {
+  display: block;
+  width: 100%;
+  width: -webkit-fill-available;
+}
+button:hover:not(:disabled), a:hover:not(:disabled) {
+  text-decoration: underline;
+}
+button.outlined, a.outlined {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+button.outlined:hover, a.outlined:hover {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  background-color: transparent;
+}
+button.outlined:active, a.outlined:active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+button:is(.primary, .success, .danger, .warning, .info), a:is(.primary, .success, .danger, .warning, .info) {
+  color: white;
+  background-color: var(--color);
+}
+button:is(.primary, .success, .danger, .warning, .info):hover:not(:disabled), a:is(.primary, .success, .danger, .warning, .info):hover:not(:disabled) {
+  background-color: rgba(var(--r), var(--g), var(--b), 0.85);
+  text-decoration: none;
+}
+button:is(.primary, .success, .danger, .warning, .info):active, a:is(.primary, .success, .danger, .warning, .info):active {
+  background-color: rgba(var(--r), var(--g), var(--b), 0.7);
+}
+button:is(.primary, .success, .danger, .warning, .info).outlined, a:is(.primary, .success, .danger, .warning, .info).outlined {
+  color: var(--color);
+  border: 1px solid rgba(var(--r), var(--g), var(--b), 0.3);
+  background-color: transparent;
+}
+button:is(.primary, .success, .danger, .warning, .info).outlined:hover, a:is(.primary, .success, .danger, .warning, .info).outlined:hover {
+  border-color: rgba(var(--r), var(--g), var(--b), 0.3);
+  color: white;
+}
+button:is(.primary, .success, .danger, .warning, .info).outlined:active, a:is(.primary, .success, .danger, .warning, .info).outlined:active {
+  background-color: rgba(var(--r), var(--g), var(--b), 0.1);
+  border-color: var(--color);
+}
+button:disabled, a:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+textarea {
+  display: block;
+  background-color: #e3e3e30a;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 20px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid transparent;
+  transition: border-bottom-color ease-in-out 0.1s;
+  width: 400px;
+  height: 75px;
+  resize: none;
+  color: #DCDDDE;
+}
+textarea.error {
+  border-bottom-color: rgba(237, 66, 69, 0.8);
+}
+textarea::placeholder {
+  color: #4f5660;
+}
+textarea:focus {
+  outline: none;
+}
+
+x-modal > div.container, client-editor-modal > div.container {
+  max-width: 1200px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #0f0e17;
+  padding: 20px;
+  width: fit-content;
+  border-radius: 12px;
+}
+x-modal > div.container > header, client-editor-modal > div.container > header {
+  margin-bottom: 20px;
+  display: grid;
+  justify-content: right;
+}
+x-modal > div.container > main, client-editor-modal > div.container > main {
+  padding: 20px 10px;
+}
+x-modal > div.container > main h3:first-of-type, client-editor-modal > div.container > main h3:first-of-type {
+  margin-bottom: 0.5em;
+}
+x-modal > div.container > footer, client-editor-modal > div.container > footer {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #0000000f;
+  display: grid;
+  grid-auto-flow: column;
+  grid-gap: 8px;
+  justify-content: right;
+}
+x-modal > i, client-editor-modal > i {
+  color: white;
+  font-size: 25px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 20px;
+  cursor: pointer;
+}
+
+i.bf-instruction {
+  display: inline-block;
+  color: #f6f6f7;
+  box-shadow: inset 0 -4px 0 #202225;
+  background-color: #4f545c;
+  border: 1px solid #36393f;
+  padding: 3px 6px 4px;
+  margin-right: 3px;
+  border-radius: 4px;
+  cursor: default;
+  min-width: 14px;
+  min-height: 14px;
+  text-align: center;
+  box-sizing: border-box;
+  position: relative;
+  height: 23px;
+  line-height: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-style: normal;
+  font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  vertical-align: baseline;
+}
+
+div.ascii-table {
+  display: grid;
+  grid-template-rows: repeat(24, auto);
+  grid-column-gap: 10px;
+  grid-auto-flow: column;
+}
+div.ascii-table > div {
+  display: grid;
+  grid-auto-flow: column;
+  grid-gap: 0.5em;
+  justify-content: space-around;
+  padding: 5px 8px;
+  border-radius: 3px;
+}
+div.ascii-table > div:hover {
+  background: #6262625c;
+}
+div.ascii-table > div > span {
+  color: gray;
+}
+div.ascii-table > div > span:last-of-type {
+  color: white;
+  font-weight: bold;
+}
+
+/*# sourceMappingURL=style.css.map */
