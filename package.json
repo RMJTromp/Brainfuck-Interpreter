@@ -32,7 +32,8 @@
             "context": "browser",
             "outputFormat": "commonjs",
             "includeNodeModules": [
-                "svg-tag-names"
+                "svg-tag-names",
+                "dom-chef"
             ],
             "isLibrary": false,
             "sourceMap": true,
