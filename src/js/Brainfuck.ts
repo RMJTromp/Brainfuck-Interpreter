@@ -95,7 +95,7 @@ export default class Brainfuck {
                 });
             }
 
-            this._steps.max_cells = Math.min(15, Math.max(...this._steps.steps.map(step => step.cells.length)));
+            this._steps.max_cells = Math.max(15, Math.max(...this._steps.steps.map(step => step.cells.length)));
         }
         return this._steps;
     }
