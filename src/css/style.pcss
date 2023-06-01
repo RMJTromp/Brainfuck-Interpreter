@@ -15,6 +15,8 @@ body {
 	background: #0f0e17;
 	color: #DCDDDE;
 	font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+    display: grid;
 
 	> section {
 		display: flex;
@@ -202,6 +204,25 @@ body {
 			z-index: -1;
 		}
 	}
+
+    > footer {
+        display: grid;
+        place-items: center;
+        margin-top: auto;
+
+        > a {
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            grid-auto-flow: column;
+            color: #a4a4a4;
+            text-decoration: none !important;
+
+            &:hover {
+                color: white;
+            }
+        }
+    }
 }
 
 button, a {
