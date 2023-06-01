@@ -1,12 +1,30 @@
+export interface Steps {
+    /** Input */
+    input: string,
+    /** Max cells */
+    max_cells: number,
+    /** Steps */
+    steps: Step[]
+}
+
+export interface Step {
+    /** Step index */
+    index: number,
+    /** Pointer position */
+    pointer: number,
+    /** Cell values */
+    cells: number[],
+    /** Current output */
+    result: string
+}
+
 export default class Brainfuck {
 
-    /** @type {number[]} */
-    cells = [];
+    cells : number[] = [];
     at = 0;
     index = 0;
     input = "";
-    /** @type {number[]} */
-    loopAnchors = [];
+    loopAnchors : number[] = [];
     result = "";
     _steps = null;
 
@@ -51,7 +69,7 @@ export default class Brainfuck {
         return true;
     }
 
-    get steps() {
+    get steps() : Steps {
         if(this._steps === null) {
             this._steps = {
                 input: this.input,
@@ -60,12 +78,14 @@ export default class Brainfuck {
             };
 
             let bf = new Brainfuck(this.input);
+
             this._steps.steps.push({
                 index: bf.index,
                 pointer: bf.at,
                 cells: [...bf.cells],
                 result: bf.result
             });
+
             while(bf.nextStep()) {
                 this._steps.steps.push({
                     index: bf.index,
@@ -75,7 +95,7 @@ export default class Brainfuck {
                 });
             }
 
-            this._steps.max_cells = Math.max(15, Math.max(...this._steps.steps.map(step => step.cells.length)));
+            this._steps.max_cells = Math.min(15, Math.max(...this._steps.steps.map(step => step.cells.length)));
         }
         return this._steps;
     }

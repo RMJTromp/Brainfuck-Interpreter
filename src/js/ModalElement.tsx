@@ -1,4 +1,4 @@
-import $ from "./selector.js";
+import {h} from "dom-chef";
 
 export default class ModalElement extends HTMLElement {
 
@@ -35,14 +35,15 @@ export default class ModalElement extends HTMLElement {
             startElement = null;
         });
 
-        const closeButton = $("<i>", {class: "codicon codicon-chrome-close"});
-        this.append(closeButton);
-        closeButton.addEventListener("click", () => {
-            if(this.isCloseable()) this.close();
-        });
+        this.append(
+            <i className="codicon codicon-chrome-close" onclick={() => {
+                if(this.isCloseable()) this.close();
+            }}/> as HTMLElement
+        )
 
         window.addEventListener("keyup", (e) => {
-            if(this.isCloseable() && e.key === "Escape" && !e.ctrlKey && !e.shiftKey && !e.altKey) this.close();
+            if(this.isCloseable() && e.key === "Escape" && !e.ctrlKey && !e.shiftKey && !e.altKey)
+                this.close();
         });
     }
 

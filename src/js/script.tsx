@@ -1,18 +1,18 @@
-import $ from "./selector.js";
-import Brainfuck from "./Brainfuck.js";
+import Brainfuck from "./Brainfuck";
+import {h} from "dom-chef";
 import {saveSelection, restoreSelection} from "./Selection.js";
-import ModalElement from "./ModalElement.js";
+import ModalElement from "./ModalElement";
 
 window.customElements.define('x-modal', ModalElement);
 
-const   textarea = $("div.textarea"),
-        runButton = $('div.input button[data-action="run"]'),
-        debugButton = $('div.input button[data-action="debug"]');
+const   textarea : HTMLTextAreaElement = document.querySelector("div.textarea"),
+        runButton : HTMLButtonElement = document.querySelector('div.input button[data-action="run"]'),
+        debugButton : HTMLButtonElement = document.querySelector('div.input button[data-action="debug"]');
 
 let debug = null;
 
-let inp = null,
-    out = null;
+let inp = <textarea onInput={() => do_generate()}>Hello World</textarea>,
+    out = <textarea disabled={true}></textarea>;
 
 const update = () => {
     const pos = document.activeElement === textarea ? saveSelection(textarea) : undefined;
@@ -44,10 +44,11 @@ update();
 
 runButton.onclick = (e) => {
     if(textarea.innerText.trim().length) {
-        e.target.disabled = true;
+        runButton.disabled = true;
         let bf = new Brainfuck(textarea.innerText)
         bf.run();
-        $("div.output > div.textarea").innerText = bf.result;
+
+        (document.querySelector("div.output > div.textarea") as HTMLTextAreaElement).innerText = bf.result;
     }
 }
 
@@ -74,29 +75,31 @@ debugButton.onclick = (e) => {
             debug.index = 0;
 
             // init debug elements
-            const debuggerElement = $("<div>", {class: "debugger"});
-            const cellsWrapper = $("<div>", {class: "cells-wrapper"});
-            const cellsElement = $("<div>", {class: "cells"});
+            const debuggerElement = <div className="debugger"/>
+            const cellsWrapper = <div className="cells-wrapper"/>
+            const cellsElement = <div className="cells"/>
 
             let debugPreviousButton, debugNextButton;
-            let pointer = $("<i>", {class: "pointer codicon codicon-debug-breakpoint-function-unverified"});
+            let pointer = <i className="pointer codicon codicon-debug-breakpoint-function-unverified"/>
 
             const rebuild = () => {
                 cellsElement.innerHTML = "";
                 for(let i = 0; i < debug.max_cells; i++) {
                     const val = (debug.steps[debug.index]?.cells ?? [])[i] ?? 0;
-                    const cell = $("<div>", {class:"cell"});
-                    cell.append($("<span>", {text: i}));
-                    cell.append($("<p>", {text: val}));
-                    cell.append($("<small>", {text: String.fromCharCode(val)}));
-                    cellsElement.append(cell);
+                    cellsElement.append(
+                        <div className="cell">
+                            <span>{i}</span>
+                            <p>{val}</p>
+                            <small>{String.fromCharCode(val)}</small>
+                        </div>
+                    );
                 }
 
                 pointer.style.transform = `translate(calc(54px * ${debug.steps[debug.index]?.pointer ?? 0} + 26px - 50%), 30px)`;
                 debugPreviousButton.disabled = debug.index === 0;
                 debugNextButton.disabled = debug.index === debug.steps.length - 1;
 
-                $("div.output div.textarea").innerText = debug.steps[debug.index]?.result;
+                (document.querySelector("div.output div.textarea") as HTMLTextAreaElement).innerText = debug.steps[debug.index]?.result;
 
                 let prefix = debug.input.substring(0, debug.steps[debug.index]?.index - 1);
                 let emphasized = debug.input.substring(debug.steps[debug.index]?.index - 1, debug.steps[debug.index]?.index);
@@ -108,18 +111,24 @@ debugButton.onclick = (e) => {
 
             cellsWrapper.append(cellsElement);
 
-            const controlsElement = $("<div>", {class:"controls"});
+            const controlsElement = <div className="controls"/>
             {
                 let playing = false, playInterval = NaN;
-                const playPauseButton = $("<button>");
-                const playPauseButtonIcon = $("<i>", {class: "codicon codicon-debug-start"});
+                const playPauseButton = <button/>
+                const playPauseButtonIcon = <i className="codicon codicon-debug-start"/>
                 playPauseButton.append(playPauseButtonIcon);
 
-                debugNextButton = $("<button>");
-                debugNextButton.append($("<i>", {class:"codicon codicon-debug-continue"}));
+                debugNextButton = (
+                    <button>
+                        <i className="codicon codicon-debug-continue"></i>
+                    </button>
+                )
 
-                debugPreviousButton = $("<button>", {disabled: ""});
-                debugPreviousButton.append($("<i>", {class:"codicon codicon-debug-reverse-continue"}));
+                debugPreviousButton = (
+                    <button disabled={true}>
+                        <i className="codicon codicon-debug-reverse-continue"></i>
+                    </button>
+                )
 
                 controlsElement.append(debugPreviousButton, playPauseButton, debugNextButton);
 
@@ -174,82 +183,63 @@ debugButton.onclick = (e) => {
     }
 }
 
-$('button[data-action="learn"]').onclick = (e) => {
+(document.querySelector('button[data-action="learn"]') as HTMLButtonElement).onclick = (e) => {
     const modal = new ModalElement(true);
 
-    {
-        const container = $("<div>", {class:"container"});
-        container.style.maxWidth = "800px";
-
-        const main = $("<main>");
-        main.append($("<h3>", {text:"Learn Brainfuck"}));
-        main.append($("<p>", {text:"Brainfuck is executed on a memory array. By default, it's a 30-thousand-cell-long array of 8-bit integers, but some other implementations are more flexible. There are two registers : Instruction pointer and Memory Pointer. Finally, there are 8 instructions:"}));
-        main.append($("<br>"))
-
-        const explanation = $("<p>");
-        explanation.innerHTML =
-            `<i class="bf-instruction">+</i> and <i class="bf-instruction">-</i> increments or decrement the value of the element in the array which the pointer is pointing at. Once you go over 255 the value wraps back to 0, and when you go under it wraps back to 255.
-<br><i class="bf-instruction">&lt;</i> and <i class="bf-instruction">&gt;</i> Moves increments or decrements the position of the pointer (moves the pointer to the left or right).
-<br><i class="bf-instruction">.</i> prints out the ASCII character corresponding to the integer value stored where the pointer is currently pointing at.
-<br><i class="bf-instruction">,</i> takes in a user-input and overrides the currently stored value.
-<br><i class="bf-instruction">[</i> and <i class="bf-instruction">]</i> declares the start and end of a loop. The loop stops at the end of the loop when the value of where the pointer is pointing at is 0.`;
-        main.append(explanation);
-
-        container.append(main);
-
-        modal.append(container);
-    }
+    modal.append(
+        <div className="container" style={{maxWidth: "800px"}}>
+            <main>
+                <h3>Learn Brainfuck</h3>
+                <p>Brainfuck is executed on a memory array. By default, it's a 30-thousand-cell-long array of 8-bit integers, but some other implementations are more flexible. There are two registers : Instruction pointer and Memory Pointer. Finally, there are 8 instructions:</p>
+                <br/>
+                <p>
+                    <i className="bf-instruction">+</i> and <i className="bf-instruction">-</i> increments or decrement the value of the element in the array which the pointer is pointing at. Once you go over 255 the value wraps back to 0, and when you go under it wraps back to 255.
+                    <br/><i className="bf-instruction">&lt;</i> and <i className="bf-instruction">&gt;</i> Moves increments or decrements the position of the pointer (moves the pointer to the left or right).
+                    <br/><i className="bf-instruction">.</i> prints out the ASCII character corresponding to the integer value stored where the pointer is currently pointing at.
+                    <br/><i className="bf-instruction">,</i> takes in a user-input and overrides the currently stored value.
+                    <br/><i className="bf-instruction">[</i> and <i className="bf-instruction">]</i> declares the start and end of a loop. The loop stops at the end of the loop when the value of where the pointer is pointing at is 0.
+                </p>
+            </main>
+        </div> as HTMLDivElement
+    );
 
     modal.open();
 }
 
-$('button[data-action="ascii-table"]').onclick = (e) => {
+(document.querySelector('button[data-action="ascii-table"]') as HTMLButtonElement).onclick = (e) => {
     const modal = new ModalElement(true);
 
-    {
-        const container = $("<div>", {class:"container"});
-        container.style.maxWidth = "800px";
-
-        const main = $("<main>");
-        main.append($("<h3>", {text:"ASCII Table"}));
-
-        const asciiTable = $("<div>", {class:"ascii-table"});
-        for(let i = 0; i < 256; i++) {
-            const entry = $("<div>");
-            entry.append($("<span>", {text:i}));
-            entry.append($("<span>", {text:String.fromCharCode(i)}));
-            asciiTable.append(entry);
-        }
-        main.append(asciiTable);
-
-        container.append(main);
-
-        modal.append(container);
-    }
+    modal.append(
+        <div className="container" style={{maxWidth: "800px"}}>
+            <main>
+                <h3>ASCII Table</h3>
+                <div className="ascii-table">
+                    {Array(256).fill(0).map((_, i) => (
+                        <div>
+                            <span>{i}</span>
+                            <span>{String.fromCharCode(i)}</span>
+                        </div>
+                    ))}
+                </div>
+            </main>
+        </div>
+    );
 
     modal.open();
 }
 
-$('button[data-action="encode"]').onclick = (e) => {
+(document.querySelector('button[data-action="encode"]') as HTMLButtonElement).onclick = (e) => {
     const modal = new ModalElement(true);
 
-    {
-        const container = $("<div>", {class:"container"});
-        container.style.maxWidth = "800px";
-
-        const main = $("<main>");
-        main.append($("<h3>", {text:"Text Encoder"}));
-
-        inp = $("<textarea>", {value: "Hello World"});
-        inp.oninput = () => do_generate();
-        out = $("<textarea>", {disabled: ""});
-        main.append(inp);
-        main.append(out);
-
-        container.append(main);
-
-        modal.append(container);
-    }
+    modal.append(
+        <div className="container" style={{maxWidth: "800px"}}>
+            <main>
+                <h3>Text Encoder</h3>
+                {inp}
+                {out}
+            </main>
+        </div>
+    )
 
     modal.open();
 }
@@ -258,9 +248,9 @@ window.onmouseover = (e) => {
     [...document.querySelectorAll("div.tooltip")].forEach(el => el.remove());
     if(e.target.matches("span[operator]")) {
         const operator = e.target.getAttribute("operator");
-        const tooltip = $("<div>", {class:"tooltip"});
-        const p = $("<p>");
-        tooltip.append(p);
+        let p = <p/>;
+        const tooltip = <div className="tooltip">{p}</div>
+
         let count = e.target.innerText.length;
         if(operator === ">") {
             p.innerHTML = `<b>Increment Data Pointer</b> - Moves the pointer to the right ${count} time${count > 1 ? "s" : ""}`;
@@ -280,6 +270,7 @@ window.onmouseover = (e) => {
             p.innerHTML = `<b>Close Loop Bracket</b> - If nonzero value, execute command after corresponding '[' bracket`;
         }
 
+
         const pos = e.target.getBoundingClientRect();
         const tooltipPos = tooltip.getBoundingClientRect();
 
@@ -289,7 +280,7 @@ window.onmouseover = (e) => {
     }
 }
 
-let info = $("<p>"), info_head = $("<p>");
+let info = <p/>, info_head = <p/>;
 
 function gcd(c, a) {
     return 0 === a ? c : gcd(a, c % a)
@@ -318,7 +309,7 @@ function next() {
     iter = !1;
     for (var c = 0; 256 > c; c++)
         for (var a = 1; 40 > a; a++)
-            for (var f = inverse_mod(a, 256) & 255, d = 1; 40 > d; d++)
+            for (var f = inverse_mod(a, 256) & 255, d : any = 1; 40 > d; d++)
                 if (1 === gcd(a, d)) {
                     if (a & 1) {
                         var b = 0;
@@ -334,11 +325,11 @@ function next() {
         for (a = map[c], e = 0; 256 > e; e++)
             for (f = map[e],
                      d = a[e], b = 0; 256 > b; b++) d.length + f[b].length < a[b].length && (a[b] = d + f[b]);
-    --repeat ? (info_head.textContent += ".", setTimeout(next, 0)) : (info_head.textContent += ". done (" + ((new Date - start) / 1E3).toFixed(2) + " seconds).", do_generate())
+    --repeat ? (info_head.textContent += ".", setTimeout(next, 0)) : (info_head.textContent += ". done (" + ((Date.now() - start) / 1E3).toFixed(2) + " seconds).", do_generate())
 }
 
 function generate(c) {
-    for (var a = 0, f = c.length, d = "", b = 0; b < f; b++) {
+    for (var a : any = 0, f = c.length, d = "", b = 0; b < f; b++) {
         var e = c.charCodeAt(b) & 255;
         a = [">" + map[0][e], map[a][e]];
         var g = shortest_str(a);
