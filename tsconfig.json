@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "module": "ESnext",
+        "target": "ESnext",
+        "sourceMap": true,
+        "jsxFactory": "h",
+        "jsxFragmentFactory": "DocumentFragment",
+        "jsx": "react",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "paths": {
+            "dom-chef": ["src/js/plugins/dom-chef@5.1.0"]
+        }
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
