@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Brainfuck-Interpreter
+A Brainfuck interpreter, text encoder, and debugger/visualizing tool for Brainfuck. This project provides a website that offers code highlighting for Brainfuck, making it easier to read and understand Brainfuck code.
 
-## Getting Started
+### Features
+- Brainfuck code highlighting
+- Interpreter for executing Brainfuck code
+- Text encoder/decoder for Brainfuck
+- Debugger and visualizing tool for Brainfuck
 
-First, run the development server:
+### Installation
+To use the Brainfuck Interpreter, follow these steps:
+1. Clone the repository using the following command:<br/>`git clone https://github.com/RMJTromp/Brainfuck-Interpreter`
+2. Navigate to project directory:<br/>`cd Brainfuck-Interpreter`
+3. Install the dependencies:<br/>`npm install`
+4. Build project:<br/>`npm run build`
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+#### Usage
+To run the Brainfuck Interpreter locally, use the following command: `npm run dev`<br/>
+This will start a local development server where you can test the functionality of the Brainfuck Interpreter.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Live Demo
+You can try out a live version of the Brainfuck Interpreter here: http://brainfuck.rmjtromp.dev/
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Contributing
+Contributions are welcome! If you have any ideas, enhancements, or bug fixes, please submit a pull request.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### License
+This project is subject to the [GNU General Public License v3.0](https://github.com/Mxlvin/ChatEmojis/blob/main/LICENSE). This does only apply for source code located directly in this clean repository.
+For those who are unfamiliar with the license, here is a summary of its main points. This is by no means legal advice nor legally binding.
+You are allowed to
+- use
+- share
+- modify
 
-## Learn More
+this project entirely or partially for free and even commercially. However, please consider the following:
 
-To learn more about Next.js, take a look at the following resources:
+- **You must disclose the source code of your modified work and the source code you took from this project. This means you are not allowed to use code from this project (even partially) in a closed-source (or even obfuscated) application.**
+- **Your modified application must also be licensed under the GPL**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Do the above and share your source code with everyone; just like we do.
