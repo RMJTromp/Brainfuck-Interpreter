@@ -1,11 +1,8 @@
 {
     "name": "brainfuck-interpreter",
     "description": "A BrainFuck interpreter, text encoder, and debugger/visualizing tool for BrainFuck",
-    "version": "1.0.0",
-    "dependencies": {
-        "svg-tag-names": "^3.0.1"
-    },
-    "homepage": "https://brainfuck.rmjtromp.com",
+    "version": "2.0.0",
+    "homepage": "https://brainfuck.rmjtromp.dev",
     "repository": {
         "url": "git+https://github.com/RMJTromp/Brainfuck-Interpreter.git",
         "type": "git"
@@ -18,37 +15,46 @@
         "url": "https://github.com/RMJTromp/Brainfuck-Interpreter/issues"
     },
     "scripts": {
-        "build": "parcel build src/index.html --public-url /",
-        "dev": "parcel serve src/index.html --public-url /"
+        "dev": "next dev --turbopack",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
     },
-    "alias": {
-        "dom-chef": "/src/js/plugins/dom-chef@5.1.0"
-    },
-    "browserslist": [
-        "> 0.5%, last 2 versions, not dead"
-    ],
-    "targets": {
-        "default": {
-            "context": "browser",
-            "outputFormat": "commonjs",
-            "includeNodeModules": [
-                "svg-tag-names",
-                "dom-chef"
-            ],
-            "isLibrary": false,
-            "sourceMap": true,
-            "optimize": true
-        }
+    "dependencies": {
+        "@headless-tree/core": "^1.2.1",
+        "@headless-tree/react": "^1.2.1",
+        "@icons-pack/react-simple-icons": "^13.7.0",
+        "@lexical/markdown": "^0.33.1",
+        "@lexical/react": "^0.33.1",
+        "@lexical/rich-text": "^0.33.1",
+        "@radix-ui/react-select": "^2.2.5",
+        "@radix-ui/react-separator": "^1.1.7",
+        "@radix-ui/react-slot": "^1.2.3",
+        "@radix-ui/react-tooltip": "^1.2.7",
+        "@radix-ui/react-use-controllable-state": "^1.2.2",
+        "@shikijs/transformers": "^3.8.1",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "lexical": "^0.33.1",
+        "lucide-react": "^0.534.0",
+        "next": "15.4.5",
+        "next-themes": "^0.4.6",
+        "radix-ui": "^1.4.2",
+        "react": "19.1.0",
+        "react-dom": "19.1.0",
+        "react-markdown": "^10.1.0",
+        "remark-gfm": "^4.0.1",
+        "shiki": "^3.8.1",
+        "sonner": "^2.0.6",
+        "tailwind-merge": "^3.3.1"
     },
     "devDependencies": {
-        "parcel": "^2.9.1",
-        "postcss": "^8.4.24",
-        "postcss-nested": "^6.0.1",
-        "postcss-url": "^10.1.3",
-        "typescript": "^5.0.4"
-    },
-    "engines": {
-        "npm": "9.x",
-        "node": "18.x"
+        "@tailwindcss/postcss": "^4",
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "tailwindcss": "^4",
+        "tw-animate-css": "^1.3.6",
+        "typescript": "^5"
     }
 }
