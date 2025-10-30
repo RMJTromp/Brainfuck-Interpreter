@@ -19,7 +19,7 @@ To run the Brainfuck Interpreter locally, use the following command: `npm run de
 This will start a local development server where you can test the functionality of the Brainfuck Interpreter.
 
 ### Live Demo
-You can try out a live version of the Brainfuck Interpreter here: http://brainfuck.rmjtromp.com/
+You can try out a live version of the Brainfuck Interpreter here: http://brainfuck.net/
 
 ### Contributing
 Contributions are welcome! If you have any ideas, enhancements, or bug fixes, please submit a pull request.
