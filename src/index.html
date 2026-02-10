@@ -4,21 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="css/style.pcss">
 
     <title>Brainfuck.net - Interpreter, Encoder & Debugger</title>
     <meta name="description" content="Write, run, and debug Brainfuck code in your browser. Features syntax highlighting, a visual step-through debugger, ASCII table, and a text-to-Brainfuck encoder.">
     <meta name="keywords" content="brainfuck, brainfuck interpreter, brainfuck debugger, brainfuck encoder, brainfuck online, esoteric programming language">
     <meta name="author" content="RMJTromp">
+    <meta name="robots" content="index, follow">
     <meta name="theme-color" content="#0f0e17">
+    <link rel="canonical" href="https://brainfuck.net/">
 
     <meta property="og:site_name" content="Brainfuck.net">
     <meta property="og:url" content="https://brainfuck.net/">
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
     <meta property="og:title" content="Brainfuck.net - Interpreter, Encoder & Debugger">
     <meta property="og:description" content="Write, run, and debug Brainfuck code in your browser. Features syntax highlighting, a visual step-through debugger, ASCII table, and a text-to-Brainfuck encoder.">
     <meta property="og:image" content="https://brainfuck.net/thumbnail.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta property="twitter:domain" content="brainfuck.net">
@@ -33,15 +37,38 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Brainfuck" />
     <link rel="manifest" href="./site.webmanifest" />
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Brainfuck.net",
+        "url": "https://brainfuck.net/",
+        "description": "Write, run, and debug Brainfuck code in your browser. Features syntax highlighting, a visual step-through debugger, ASCII table, and a text-to-Brainfuck encoder.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Person",
+            "name": "RMJTromp",
+            "url": "https://rmjtromp.com"
+        }
+    }
+    </script>
 </head>
 <body>
-    <section>
+    <main>
         <div class="container">
-            <div class="nav">
+            <h1>Brainfuck Interpreter</h1>
+            <nav>
                 <button data-action="learn">Learn Brainfuck</button>
                 <button data-action="ascii-table">ASCII table</button>
                 <button data-action="encode">Encode Text</button>
-            </div>
+            </nav>
             <div class="input">
                 <div class="textarea" contenteditable="true">++++++++++[>+>+++>+++++++>++++++++++<<<<-]>>>++.>+.+++++++..+++.<<++.>+++++++++++++++.>.+++.------.--------.</div>
                 <div class="controls">
@@ -53,10 +80,13 @@
                 <div class="textarea"></div>
             </div>
         </div>
-    </section>
+    </main>
     <footer>
         <a href="https://github.com/RMJTromp/Brainfuck-Interpreter" target="_blank"><i class="codicon codicon-github"></i> RMJTromp/Brainfuck-Interpreter</a>
     </footer>
+    <noscript>
+        <p>Brainfuck.net is an online Brainfuck interpreter, text encoder, and visual debugger. JavaScript is required to run this application.</p>
+    </noscript>
     <script src="js/script.tsx" type="module"></script>
 </body>
 </html>

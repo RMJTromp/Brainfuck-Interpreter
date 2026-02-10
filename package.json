@@ -42,6 +42,7 @@
     },
     "devDependencies": {
         "@parcel/packager-raw-url": "^2.16.4",
+        "@parcel/transformer-jsonld": "^2.16.4",
         "@parcel/transformer-webmanifest": "^2.16.4",
         "parcel": "^2.16.4",
         "postcss": "^8.5.6",
