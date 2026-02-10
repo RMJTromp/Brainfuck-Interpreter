@@ -20,4 +20,5 @@ Brainfuck is an esoteric programming language created by Urban Mueller in 1993. 
 ## Links
 
 - [Website](https://brainfuck.net/)
+- [Learn Brainfuck](https://brainfuck.net/learn): Beginner-friendly guide covering all 8 instructions, memory model, loops, common patterns, and Hello World walkthrough
 - [Source Code](https://github.com/RMJTromp/Brainfuck-Interpreter)
