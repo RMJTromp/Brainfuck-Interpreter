@@ -27,17 +27,23 @@ export default class Brainfuck {
     loopAnchors : number[] = [];
     result = "";
     _steps = null;
+    private _onInputRequest : (() => Promise<number>) | null = null;
 
     constructor(input) {
         this.input = input;
     }
 
-    run() {
-        while(this.nextStep()) {}
+    onInputRequest(handler: () => Promise<number>) {
+        this._onInputRequest = handler;
+        return this;
+    }
+
+    async run() {
+        while(await this.nextStep()) {}
         return this.result;
     }
 
-    nextStep() {
+    async nextStep() {
         if(this.index >= this.input.length) return false;
 
         const operator = this.input[this.index];
@@ -63,13 +69,21 @@ export default class Brainfuck {
                 // remove the last anchor
                 this.loopAnchors.splice(this.loopAnchors.length - 1, 1);
         } else if(operator === ".") this.result += String.fromCharCode(this.cells[this.at]);
+        else if(operator === ",") {
+            if(this._onInputRequest) {
+                const value = await this._onInputRequest();
+                this.cells[this.at] = value & 255;
+            } else {
+                this.cells[this.at] = 0;
+            }
+        }
 
         this.index++;
 
         return true;
     }
 
-    get steps() : Steps {
+    async getSteps() : Promise<Steps> {
         if(this._steps === null) {
             this._steps = {
                 input: this.input,
@@ -78,6 +92,7 @@ export default class Brainfuck {
             };
 
             let bf = new Brainfuck(this.input);
+            if(this._onInputRequest) bf.onInputRequest(this._onInputRequest);
 
             this._steps.steps.push({
                 index: bf.index,
@@ -86,7 +101,7 @@ export default class Brainfuck {
                 result: bf.result
             });
 
-            while(bf.nextStep()) {
+            while(await bf.nextStep()) {
                 this._steps.steps.push({
                     index: bf.index,
                     pointer: bf.at,

@@ -42,13 +42,54 @@ textarea.oninput = () => {
 }
 update();
 
-runButton.onclick = (e) => {
+const requestInput = () : Promise<number> => {
+    return new Promise((resolve) => {
+        const modal = new ModalElement(true);
+        modal.setCloseable(false);
+
+        let inputField = <input type="number" min="0" max="255" placeholder="0-255" className="input-field"/> as HTMLInputElement;
+
+        let submitButton = <button className="success" style={{marginTop: "10px"}}>Submit</button> as HTMLButtonElement;
+
+        const submit = () => {
+            const val = parseInt(inputField.value) || 0;
+            modal.setCloseable(true);
+            modal.close();
+            resolve(Math.max(0, Math.min(255, val)));
+        };
+
+        submitButton.onclick = submit;
+        inputField.onkeydown = (e) => {
+            if(e.key === "Enter") submit();
+        };
+
+        modal.append(
+            <div className="container" style={{maxWidth: "400px"}}>
+                <main>
+                    <h3>Input Requested</h3>
+                    <p>The program is requesting a byte value (0-255).</p>
+                    {inputField}
+                    {submitButton}
+                </main>
+            </div> as HTMLDivElement
+        );
+
+        modal.open();
+        inputField.focus();
+    });
+}
+
+runButton.onclick = async (e) => {
     if(textarea.innerText.trim().length) {
         runButton.disabled = true;
-        let bf = new Brainfuck(textarea.innerText)
-        bf.run();
+        debugButton.disabled = true;
+        let bf = new Brainfuck(textarea.innerText);
+        bf.onInputRequest(requestInput);
+        await bf.run();
 
         (document.querySelector("div.output > div.textarea") as HTMLTextAreaElement).innerText = bf.result;
+        runButton.disabled = false;
+        debugButton.disabled = false;
     }
 }
 
@@ -63,7 +104,7 @@ const exitDebug = () => {
     update();
 }
 
-debugButton.onclick = (e) => {
+debugButton.onclick = async (e) => {
     if(textarea.innerText.trim().length) {
         if(debug === null) {
             runButton.disabled = true;
@@ -71,7 +112,9 @@ debugButton.onclick = (e) => {
             debugButton.classList.add("danger");
             debugButton.querySelector("i").classList.remove("codicon-debug-alt");
             debugButton.querySelector("i").classList.add("codicon-debug-disconnect");
-            debug = new Brainfuck(textarea.innerText).steps;
+            const bf = new Brainfuck(textarea.innerText);
+            bf.onInputRequest(requestInput);
+            debug = await bf.getSteps();
             debug.index = 0;
 
             // init debug elements
