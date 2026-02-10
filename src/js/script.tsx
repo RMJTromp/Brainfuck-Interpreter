@@ -112,10 +112,16 @@ debugButton.onclick = async (e) => {
             debugButton.classList.add("danger");
             debugButton.querySelector("i").classList.remove("codicon-debug-alt");
             debugButton.querySelector("i").classList.add("codicon-debug-disconnect");
+
             const bf = new Brainfuck(textarea.innerText);
             bf.onInputRequest(requestInput);
-            debug = await bf.getSteps();
-            debug.index = 0;
+
+            const steps = [bf.snapshot()];
+            let stepIndex = 0;
+            let finished = false;
+            let stepping = false;
+
+            debug = { bf, steps, stepIndex };
 
             // init debug elements
             const debuggerElement = <div className="debugger"/>
@@ -126,9 +132,12 @@ debugButton.onclick = async (e) => {
             let pointer = <i className="pointer codicon codicon-debug-breakpoint-function-unverified"/>
 
             const rebuild = () => {
+                const step = steps[stepIndex];
+                const maxCells = Math.max(15, step.cells.length);
+
                 cellsElement.innerHTML = "";
-                for(let i = 0; i < debug.max_cells; i++) {
-                    const val = (debug.steps[debug.index]?.cells ?? [])[i] ?? 0;
+                for(let i = 0; i < maxCells; i++) {
+                    const val = (step.cells)[i] ?? 0;
                     cellsElement.append(
                         <div className="cell">
                             <span>{i}</span>
@@ -138,25 +147,47 @@ debugButton.onclick = async (e) => {
                     );
                 }
 
-                pointer.style.transform = `translate(calc(54px * ${debug.steps[debug.index]?.pointer ?? 0} + 26px - 50%), 30px)`;
-                debugPreviousButton.disabled = debug.index === 0;
-                debugNextButton.disabled = debug.index === debug.steps.length - 1;
+                pointer.style.transform = `translate(calc(54px * ${step.pointer ?? 0} + 26px - 50%), 30px)`;
+                debugPreviousButton.disabled = stepIndex === 0;
+                debugNextButton.disabled = stepIndex === steps.length - 1 && finished;
 
-                (document.querySelector("div.output div.textarea") as HTMLTextAreaElement).innerText = debug.steps[debug.index]?.result;
+                (document.querySelector("div.output div.textarea") as HTMLTextAreaElement).innerText = step.result;
 
-                let prefix = debug.input.substring(0, debug.steps[debug.index]?.index - 1);
-                let emphasized = debug.input.substring(debug.steps[debug.index]?.index - 1, debug.steps[debug.index]?.index);
-                let suffix = debug.input.substring(debug.steps[debug.index]?.index);
+                let prefix = bf.input.substring(0, step.index - 1);
+                let emphasized = bf.input.substring(step.index - 1, step.index);
+                let suffix = bf.input.substring(step.index);
 
                 textarea.innerHTML = `${colorizeBF(prefix)}${colorizeBF(emphasized, true)}${colorizeBF(suffix)}`;
                 cellsElement.append(pointer);
+            }
+
+            const stepForward = async () => {
+                if(stepping || (stepIndex === steps.length - 1 && finished)) return;
+                stepping = true;
+                debugNextButton.disabled = true;
+                debugPreviousButton.disabled = true;
+
+                if(stepIndex < steps.length - 1) {
+                    stepIndex++;
+                } else {
+                    const cont = await bf.nextStep();
+                    if(cont) {
+                        steps.push(bf.snapshot());
+                        stepIndex++;
+                    } else {
+                        finished = true;
+                    }
+                }
+
+                stepping = false;
+                rebuild();
             }
 
             cellsWrapper.append(cellsElement);
 
             const controlsElement = <div className="controls"/>
             {
-                let playing = false, playInterval = NaN;
+                let playing = false, playTimerId = NaN;
                 const playPauseButton = <button/>
                 const playPauseButtonIcon = <i className="codicon codicon-debug-start"/>
                 playPauseButton.append(playPauseButtonIcon);
@@ -175,47 +206,56 @@ debugButton.onclick = async (e) => {
 
                 controlsElement.append(debugPreviousButton, playPauseButton, debugNextButton);
 
-                debugNextButton.onclick = () => {
-                    debug.index++;
+                debugNextButton.onclick = () => stepForward();
+
+                debugPreviousButton.onclick = () => {
+                    stepIndex--;
                     rebuild();
                 }
 
-                debugPreviousButton.onclick = () => {
-                    debug.index--;
-                    rebuild();
+                const stopPlaying = () => {
+                    playing = false;
+                    if(!isNaN(playTimerId)) {
+                        clearTimeout(playTimerId);
+                        playTimerId = NaN;
+                    }
+                }
+
+                const autoPlayTick = async () => {
+                    if(!playing || debug === null) {
+                        stopPlaying();
+                        playPauseButtonIcon.classList.remove("codicon-debug-pause");
+                        playPauseButtonIcon.classList.add("codicon-debug-rerun");
+                        return;
+                    }
+
+                    if(stepIndex === steps.length - 1 && finished) {
+                        stopPlaying();
+                        playPauseButtonIcon.classList.remove("codicon-debug-pause");
+                        playPauseButtonIcon.classList.add("codicon-debug-rerun");
+                        return;
+                    }
+
+                    await stepForward();
+
+                    if(playing) {
+                        playTimerId = setTimeout(autoPlayTick, 100);
+                    }
                 }
 
                 playPauseButton.onclick = () => {
                     if(playing) {
+                        stopPlaying();
                         playPauseButtonIcon.classList.remove("codicon-debug-pause");
                         playPauseButtonIcon.classList.add("codicon-debug-start");
-
-                        if(!isNaN(playInterval)) {
-                            clearInterval(playInterval);
-                            playInterval = NaN;
-                        }
                     } else {
-                        if(debug.index === debug.steps.length - 1) debug.index = 0;
+                        if(stepIndex === steps.length - 1 && finished) stepIndex = 0;
                         playPauseButtonIcon.classList.remove("codicon-debug-rerun");
-
                         playPauseButtonIcon.classList.remove("codicon-debug-start");
                         playPauseButtonIcon.classList.add("codicon-debug-pause");
-
-                        playInterval = setInterval(() => {
-                            if(debug != null && debug.index < debug.steps.length-1) {
-                                debug.index++;
-                                rebuild();
-                            } else {
-                                playPauseButtonIcon.classList.remove("codicon-debug-pause");
-                                playPauseButtonIcon.classList.add("codicon-debug-rerun");
-
-                                clearInterval(playInterval);
-                                playInterval = NaN;
-                                playing = false;
-                            }
-                        }, 100);
+                        playing = true;
+                        playTimerId = setTimeout(autoPlayTick, 100);
                     }
-                    playing = !playing;
                 }
             }
             rebuild();

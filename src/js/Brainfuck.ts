@@ -1,12 +1,3 @@
-export interface Steps {
-    /** Input */
-    input: string,
-    /** Max cells */
-    max_cells: number,
-    /** Steps */
-    steps: Step[]
-}
-
 export interface Step {
     /** Step index */
     index: number,
@@ -26,7 +17,6 @@ export default class Brainfuck {
     input = "";
     loopAnchors : number[] = [];
     result = "";
-    _steps = null;
     private _onInputRequest : (() => Promise<number>) | null = null;
 
     constructor(input) {
@@ -83,36 +73,13 @@ export default class Brainfuck {
         return true;
     }
 
-    async getSteps() : Promise<Steps> {
-        if(this._steps === null) {
-            this._steps = {
-                input: this.input,
-                max_cells: 15,
-                steps: []
-            };
-
-            let bf = new Brainfuck(this.input);
-            if(this._onInputRequest) bf.onInputRequest(this._onInputRequest);
-
-            this._steps.steps.push({
-                index: bf.index,
-                pointer: bf.at,
-                cells: [...bf.cells],
-                result: bf.result
-            });
-
-            while(await bf.nextStep()) {
-                this._steps.steps.push({
-                    index: bf.index,
-                    pointer: bf.at,
-                    cells: [...bf.cells],
-                    result: bf.result
-                });
-            }
-
-            this._steps.max_cells = Math.max(15, Math.max(...this._steps.steps.map(step => step.cells.length)));
-        }
-        return this._steps;
+    snapshot() : Step {
+        return {
+            index: this.index,
+            pointer: this.at,
+            cells: [...this.cells],
+            result: this.result
+        };
     }
 
 }
