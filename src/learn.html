@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="css/style.pcss">
+
+    <title>Learn Brainfuck - A Beginner's Guide | Brainfuck.net</title>
+    <meta name="description" content="Learn how the Brainfuck programming language works from scratch. A beginner-friendly guide covering all 8 instructions, memory, loops, and common patterns with examples.">
+    <meta name="keywords" content="learn brainfuck, brainfuck tutorial, brainfuck guide, brainfuck instructions, brainfuck for beginners, esoteric programming language">
+    <meta name="author" content="RMJTromp">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0f0e17">
+    <link rel="canonical" href="https://brainfuck.net/learn">
+
+    <meta property="og:site_name" content="Brainfuck.net">
+    <meta property="og:url" content="https://brainfuck.net/learn">
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Learn Brainfuck - A Beginner's Guide">
+    <meta property="og:description" content="Learn how the Brainfuck programming language works from scratch. A beginner-friendly guide covering all 8 instructions, memory, loops, and common patterns.">
+    <meta property="og:image" content="https://brainfuck.net/thumbnail.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="brainfuck.net">
+    <meta property="twitter:url" content="https://brainfuck.net/learn">
+    <meta name="twitter:title" content="Learn Brainfuck - A Beginner's Guide">
+    <meta name="twitter:description" content="Learn how the Brainfuck programming language works from scratch. A beginner-friendly guide covering all 8 instructions, memory, loops, and common patterns.">
+    <meta name="twitter:image" content="https://brainfuck.net/thumbnail.jpg">
+
+    <link rel="icon" type="image/png" href="./favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Brainfuck" />
+    <link rel="manifest" href="./site.webmanifest" />
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Learn Brainfuck - A Beginner's Guide",
+        "description": "Learn how the Brainfuck programming language works from scratch. A beginner-friendly guide covering all 8 instructions, memory, loops, and common patterns.",
+        "url": "https://brainfuck.net/learn",
+        "author": {
+            "@type": "Person",
+            "name": "RMJTromp",
+            "url": "https://rmjtromp.com"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Brainfuck.net",
+            "url": "https://brainfuck.net/"
+        }
+    }
+    </script>
+</head>
+<body>
+    <main>
+        <article class="learn">
+            <header>
+                <a href="/">&larr; Back to Interpreter</a>
+                <h1>Learn Brainfuck</h1>
+                <p class="subtitle">A beginner-friendly guide to the world's most minimal programming language.</p>
+            </header>
+
+            <section id="what-is-brainfuck">
+                <h2>What is Brainfuck?</h2>
+                <p>
+                    Brainfuck is a tiny programming language created in 1993 by Urban M&uuml;ller, a Swiss physics student.
+                    His goal was simple: build the <strong>smallest possible compiler</strong> for a language that could still compute anything.
+                    He succeeded, the first compiler was just 296 bytes.
+                </p>
+                <p>
+                    The language has only <strong>8 instructions</strong>. That's it. No variables, no functions, no keywords.
+                    Despite this, Brainfuck is <strong>Turing-complete</strong>, meaning it can theoretically compute anything that any other
+                    programming language can. It's just... not very practical. And that's the point.
+                </p>
+                <p>
+                    Brainfuck belongs to a family of languages called <strong>esoteric programming languages</strong> (or "esolangs"),
+                    languages designed to be fun, weird, or challenging rather than useful for real work.
+                </p>
+            </section>
+
+            <section id="the-machine">
+                <h2>The Machine</h2>
+                <p>Before we look at the instructions, you need to understand what a Brainfuck program works with. Think of it like a very simple machine with three parts:</p>
+
+                <h3>1. The Tape</h3>
+                <p>
+                    Imagine a long row of boxes stretching out to the right. Each box holds a single number. When the program starts,
+                    every box contains <strong>0</strong>. There are 30,000 boxes in total (though you'll rarely need more than a handful).
+                </p>
+                <div class="tape-diagram">
+                    <div class="cells">
+                        <div class="cell">
+                            <span>0</span>
+                            <p>0</p>
+                            <small>&nbsp;</small>
+                        </div>
+                        <div class="cell">
+                            <span>1</span>
+                            <p>0</p>
+                            <small>&nbsp;</small>
+                        </div>
+                        <div class="cell">
+                            <span>2</span>
+                            <p>0</p>
+                            <small>&nbsp;</small>
+                        </div>
+                        <div class="cell">
+                            <span>3</span>
+                            <p>0</p>
+                            <small>&nbsp;</small>
+                        </div>
+                        <div class="cell faded">
+                            <span>&hellip;</span>
+                            <p>0</p>
+                            <small>&nbsp;</small>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>2. The Pointer</h3>
+                <p>
+                    There's an arrow pointing at one of the boxes. It starts at the very first box (cell 0).
+                    When we say "the current cell," we mean whichever box the pointer is pointing at right now.
+                    You can move the pointer left and right along the tape.
+                </p>
+
+                <h3>3. The Numbers</h3>
+                <p>
+                    Each cell holds a number from <strong>0 to 255</strong>. That's it, no negative numbers, no huge numbers.
+                    If you try to go above 255, it wraps back around to 0. If you try to go below 0, it wraps to 255.
+                    Think of it like an odometer rolling over.
+                </p>
+            </section>
+
+            <section id="the-instructions">
+                <h2>The 8 Instructions</h2>
+                <p>Every character in a Brainfuck program that isn't one of these 8 symbols is completely ignored. You can write comments however you like, the program will skip over them.</p>
+
+                <div class="instruction-grid">
+                    <div class="instruction-card">
+                        <span class="instruction-symbol">+</span>
+                        <div>
+                            <strong>Increment</strong>
+                            <p>Add 1 to the current cell. If the cell is at 255, it wraps back to 0.</p>
+                        </div>
+                    </div>
+                    <div class="instruction-card">
+                        <span class="instruction-symbol">-</span>
+                        <div>
+                            <strong>Decrement</strong>
+                            <p>Subtract 1 from the current cell. If the cell is at 0, it wraps to 255.</p>
+                        </div>
+                    </div>
+                    <div class="instruction-card">
+                        <span class="instruction-symbol">&gt;</span>
+                        <div>
+                            <strong>Move Right</strong>
+                            <p>Move the pointer one cell to the right.</p>
+                        </div>
+                    </div>
+                    <div class="instruction-card">
+                        <span class="instruction-symbol">&lt;</span>
+                        <div>
+                            <strong>Move Left</strong>
+                            <p>Move the pointer one cell to the left.</p>
+                        </div>
+                    </div>
+                    <div class="instruction-card">
+                        <span class="instruction-symbol">.</span>
+                        <div>
+                            <strong>Output</strong>
+                            <p>Print the current cell's value as an ASCII character. For example, 72 prints <code>H</code>, 101 prints <code>e</code>.</p>
+                        </div>
+                    </div>
+                    <div class="instruction-card">
+                        <span class="instruction-symbol">,</span>
+                        <div>
+                            <strong>Input</strong>
+                            <p>Read one byte of input and store its value in the current cell.</p>
+                        </div>
+                    </div>
+                    <div class="instruction-card">
+                        <span class="instruction-symbol">[</span>
+                        <div>
+                            <strong>Loop Start</strong>
+                            <p>If the current cell is <strong>0</strong>, skip ahead to the instruction after the matching <code>]</code>. Otherwise, continue into the loop.</p>
+                        </div>
+                    </div>
+                    <div class="instruction-card">
+                        <span class="instruction-symbol">]</span>
+                        <div>
+                            <strong>Loop End</strong>
+                            <p>If the current cell is <strong>not 0</strong>, jump back to the matching <code>[</code>. Otherwise, continue past the loop.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="your-first-program">
+                <h2>Your First Program</h2>
+                <p>Let's start with something small. This program outputs the letter <strong>A</strong> (ASCII value 65):</p>
+                <pre data-bf="+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++."><code>+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.</code></pre>
+                <p>
+                    That's 65 <code>+</code> signs followed by a <code>.</code> to print. The cell starts at 0, we add 1 sixty-five times to get 65,
+                    and then we output it. The ASCII character for 65 is <code>A</code>.
+                </p>
+                <p>It works, but it's pretty tedious. There's a much better way...</p>
+            </section>
+
+            <section id="loops">
+                <h2>Loops: The Key to Everything</h2>
+                <p>Loops are what make Brainfuck actually usable. They let you repeat instructions without writing them out a thousand times.</p>
+
+                <h3>How Loops Work</h3>
+                <p>A loop is everything between <code>[</code> and <code>]</code>. Here are the rules:</p>
+                <ul>
+                    <li>When the program hits <code>[</code>, it checks the <strong>current cell</strong>.</li>
+                    <li>If the cell is <strong>0</strong>, the entire loop is skipped.</li>
+                    <li>If the cell is <strong>not 0</strong>, the program enters the loop.</li>
+                    <li>When it hits <code>]</code>, it checks the current cell again.</li>
+                    <li>If the cell is <strong>not 0</strong>, it jumps back to the <code>[</code> and runs the loop again.</li>
+                    <li>If the cell is <strong>0</strong>, it exits the loop and continues.</li>
+                </ul>
+                <p>In other words, a loop keeps running <strong>as long as the current cell is not zero</strong>. It works just like a <code>while</code> loop in other languages.</p>
+
+                <h3>Multiplication with Loops</h3>
+                <p>Instead of pressing <code>+</code> sixty-five times, we can use multiplication. To print <code>A</code> (65), we can compute 13 &times; 5 = 65:</p>
+                <pre data-bf="+++++++++++++[>+++++<-]>."><code>+++++++++++++  Set cell 0 to 13
+[              While cell 0 is not 0:
+  >+++++       Add 5 to cell 1
+  <-           Go back; subtract 1 from cell 0
+]              Cell 0 is now 0; cell 1 is 65
+>.             Move to cell 1; print it (A)</code></pre>
+                <p>
+                    Here's what happens: cell 0 starts at 13. Each time through the loop, we move right, add 5 to cell 1, move back left,
+                    and subtract 1 from cell 0. After 13 loops, cell 0 is 0 (so the loop stops) and cell 1 is 13 &times; 5 = 65.
+                </p>
+                <p>Remember, any character that isn't one of the 8 instructions is ignored. So the words in the example above are just comments.</p>
+            </section>
+
+            <section id="ascii">
+                <h2>ASCII: Numbers to Characters</h2>
+                <p>
+                    Brainfuck doesn't know about letters. It only knows numbers. The <code>.</code> instruction takes whatever number
+                    is in the current cell and looks it up in the <strong>ASCII table</strong> to find the matching character.
+                </p>
+                <p>Here are some useful ASCII values to remember:</p>
+                <div class="ascii-reference">
+                    <div><code>10</code> = newline</div>
+                    <div><code>32</code> = space</div>
+                    <div><code>48-57</code> = digits 0-9</div>
+                    <div><code>65-90</code> = A-Z</div>
+                    <div><code>97-122</code> = a-z</div>
+                </div>
+                <p>
+                    <strong>A common mistake:</strong> the <code>,</code> (input) instruction stores the <em>ASCII value</em> of whatever
+                    you type, not the number itself. If you type <code>2</code>, the cell gets 50 (the ASCII code for the
+                    character '2'), not the number 2. Pressing Enter on an empty input gives you 10 (newline).
+                </p>
+            </section>
+
+            <section id="common-patterns">
+                <h2>Common Patterns</h2>
+                <p>Over the years, Brainfuck programmers have discovered small patterns that act as building blocks. Here are the most important ones:</p>
+
+                <h3>Clear a Cell</h3>
+                <pre data-bf="+++++[-]"><code>[-]</code></pre>
+                <p>This keeps subtracting 1 until the cell reaches 0. It works no matter what value the cell starts with (because of wrapping, even 255 eventually reaches 0).</p>
+
+                <h3>Move a Value</h3>
+                <pre data-bf="+++++[->+<]"><code>[->+<]</code></pre>
+                <p>
+                    This moves the value from the current cell into the next cell. Each loop iteration subtracts 1 from here and adds 1 over there.
+                    When it's done, the original cell is 0 and the next cell has the value. <strong>Warning:</strong> this destroys the original value.
+                </p>
+
+                <h3>Copy a Value</h3>
+                <pre data-bf="+++++[->+>+<<]>>[-<<+>>]"><code>[->+>+<<]>>[-<<+>>]</code></pre>
+                <p>
+                    Copying is trickier because reading a cell destroys it. The trick is to move the value into <em>two</em> cells (a target and a temporary),
+                    then move the temporary copy back. After this, the original cell is preserved and the next cell holds a copy.
+                </p>
+            </section>
+
+            <section id="hello-world">
+                <h2>Hello World: Step by Step</h2>
+                <p>Here's how the classic Brainfuck "Hello World" works. The strategy is:</p>
+                <ol>
+                    <li>Use a loop to set up several cells with values close to the ASCII codes we need.</li>
+                    <li>Fine-tune each cell with a few <code>+</code> or <code>-</code> adjustments.</li>
+                    <li>Print each character by moving to the right cell and using <code>.</code></li>
+                </ol>
+                <pre data-bf="++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>."><code>++++++++++           Set cell 0 to 10 (loop counter)
+[                    Loop 10 times:
+  >+++++++           Add 7 to cell 1
+  >++++++++++        Add 10 to cell 2
+  >+++               Add 3 to cell 3
+  >+                 Add 1 to cell 4
+  <<<<-              Go back to cell 0; subtract 1
+]
+                     After the loop:
+                     Cell 0 = 0
+                     Cell 1 = 70
+                     Cell 2 = 100
+                     Cell 3 = 30
+                     Cell 4 = 10
+
+>++.                 Cell 1: 70 plus 2 = 72       (H)
+>+.                  Cell 2: 100 plus 1 = 101     (e)
++++++++..            Cell 2: 101 plus 7 = 108     (l; printed twice)
++++.                 Cell 2: 108 plus 3 = 111     (o)
+>++.                 Cell 3: 30 plus 2 = 32       (space)
+<<+++++++++++++++.   Cell 1: 72 plus 15 = 87      (W)
+>.                   Cell 2: 111                  (o)
++++.                 Cell 2: 111 minus 3 = 114    (r)
+------.              Cell 2: 114 minus 6 = 108    (l)
+--------.            Cell 2: 108 minus 8 = 100    (d)
+>+.                  Cell 3: 32 plus 1 = 33       (!)
+>.                   Cell 4: 10                   (newline)</code></pre>
+                <p>
+                    The multiplication loop does the heavy lifting. Instead of pressing <code>+</code> 72 times for 'H',
+                    we compute 10 &times; 7 = 70 and just add 2. Clever, right?
+                </p>
+            </section>
+
+            <section id="nested-loops">
+                <h2>Nested Loops</h2>
+                <p>
+                    Loops can go inside other loops. Each <code>[</code> matches with its corresponding <code>]</code>.
+                    The interpreter keeps track of which brackets go together, so nesting works exactly like you'd expect.
+                </p>
+                <pre data-bf="+++[>+++[>+<-]<-]"><code>+++       Cell 0 = 3 (outer counter)
+[         Outer loop (runs 3 times):
+  >+++    Cell 1 = 3 (inner counter; reset each time)
+  [       Inner loop (runs 3 times):
+    >+    Add 1 to cell 2
+    <-    Subtract 1 from cell 1
+  ]       Inner loop ends when cell 1 = 0
+  <-      Subtract 1 from cell 0
+]         Outer loop ends when cell 0 = 0</code></pre>
+                <p>After this runs, cell 2 contains 9 (3 &times; 3). The inner loop runs 3 times for each of the 3 outer iterations.</p>
+            </section>
+
+            <section id="common-mistakes">
+                <h2>Common Mistakes</h2>
+                <div class="mistakes-list">
+                    <div class="mistake">
+                        <h3>Losing track of the pointer</h3>
+                        <p>After a bunch of <code>&gt;</code> and <code>&lt;</code> moves, it's easy to forget which cell you're on. Draw a diagram on paper, seriously, it helps.</p>
+                    </div>
+                    <div class="mistake">
+                        <h3>Unmatched brackets</h3>
+                        <p>Every <code>[</code> needs a <code>]</code>. A single missing bracket and nothing works. Count them carefully, especially with nested loops.</p>
+                    </div>
+                    <div class="mistake">
+                        <h3>Infinite loops</h3>
+                        <p>If nothing inside a loop ever brings the checked cell to 0, the loop runs forever. Make sure something in the loop is decrementing (or incrementing towards a wrap to 0).</p>
+                    </div>
+                    <div class="mistake">
+                        <h3>Confusing ASCII values with numbers</h3>
+                        <p>The character <code>5</code> has an ASCII value of 53. The <code>,</code> instruction stores 53, not 5. The <code>.</code> instruction prints a character, not a number.</p>
+                    </div>
+                    <div class="mistake">
+                        <h3>Forgetting moves are destructive</h3>
+                        <p><code>[->+<]</code> zeros out the source cell. If you need the original value later, use the copy pattern with a temp cell instead.</p>
+                    </div>
+                    <div class="mistake">
+                        <h3>Leftover values in cells</h3>
+                        <p>Cells keep their values. If you reuse a cell expecting it to be 0, use <code>[-]</code> to clear it first.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="try-it">
+                <h2>Try It Yourself</h2>
+                <p>
+                    The best way to learn Brainfuck is to experiment. Head over to the
+                    <a href="/">interpreter</a> and try writing some programs. Use the <strong>Debug</strong>
+                    button to step through your code one instruction at a time, you'll see exactly what each
+                    command does to the memory cells.
+                </p>
+                <p>Here are some challenges to get you started:</p>
+                <ul>
+                    <li>Print your initials</li>
+                    <li>Print the numbers 0 through 9 (remember: the <em>characters</em> '0' through '9' are ASCII 48 through 57)</li>
+                    <li>Read a character with <code>,</code> and print it back with <code>.</code></li>
+                    <li>Read a lowercase letter and print it in uppercase (hint: the difference between 'a' and 'A' is 32)</li>
+                </ul>
+                <a href="/" class="primary">Open the Interpreter &rarr;</a>
+            </section>
+
+            <section id="history">
+                <h2>A Bit of History</h2>
+                <p>
+                    Urban M&uuml;ller created Brainfuck in 1993 after being inspired by the FALSE programming language, which had a compiler
+                    that fit in 1,024 bytes. He wanted to go smaller. His compiler, written in Motorola 68000 assembly for the Amiga,
+                    came in at just 296 bytes. A later version shrunk it to 240 bytes. Brian Raiter later wrote a Linux compiler in only 166 bytes.
+                </p>
+                <p>
+                    Mathematically, Brainfuck (minus the I/O instructions) is a minor variation of a language called P'', created by
+                    Italian computer scientist Corrado B&ouml;hm in 1964, the first language proven to be Turing-complete without
+                    using goto-style jumps.
+                </p>
+                <p>
+                    Today, Brainfuck has inspired hundreds of derivative esolangs- Ook! (written in orangutan sounds), COW (bovine-themed),
+                    Brainloller (commands encoded as pixel colors in images), and many more.
+                </p>
+            </section>
+        </article>
+    </main>
+    <footer>
+        <a href="https://github.com/RMJTromp/Brainfuck-Interpreter" target="_blank"><i class="codicon codicon-github"></i> RMJTromp/Brainfuck-Interpreter</a>
+    </footer>
+    <script src="js/learn.ts" type="module"></script>
+</body>
+</html>

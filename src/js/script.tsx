@@ -34,6 +34,7 @@ const colorizeBF = (input, emphasize = false) => {
         .replaceAll(/(,+)/g, `<span operator=","${emphasize?" emphasis" : ""}>$1</span>`)
         .replaceAll(/(\[)/g, `<span operator="["${emphasize?" emphasis" : ""}>$1</span>`)
         .replaceAll(/(])/g, `<span operator="]"${emphasize?" emphasis" : ""}>$1</span>`)
+        .replaceAll(/\n/g, `<br>`)
 }
 
 textarea.oninput = () => {
@@ -42,32 +43,53 @@ textarea.oninput = () => {
 }
 update();
 
+if(window.location.hash.length > 1) {
+    try {
+        const code = decodeURIComponent(window.location.hash.substring(1));
+        if(code.trim().length > 0) {
+            textarea.innerText = code;
+            update();
+        }
+    } catch(e) {}
+}
+
 const requestInput = () : Promise<number> => {
     return new Promise((resolve) => {
         const modal = new ModalElement(true);
         modal.setCloseable(false);
 
-        let inputField = <input type="number" min="0" max="255" placeholder="0-255" className="input-field"/> as HTMLInputElement;
+        let inputField = <input type="text" maxLength={1} placeholder="Type a character" className="input-field"/> as HTMLInputElement;
 
         let submitButton = <button className="success" style={{marginTop: "10px"}}>Submit</button> as HTMLButtonElement;
 
         const submit = () => {
-            const val = parseInt(inputField.value) || 0;
+            const char = inputField.value;
+            if(char.length === 0) return;
             modal.setCloseable(true);
             modal.close();
-            resolve(Math.max(0, Math.min(255, val)));
+            resolve(char.charCodeAt(0) & 255);
         };
 
         submitButton.onclick = submit;
         inputField.onkeydown = (e) => {
-            if(e.key === "Enter") submit();
+            if(e.key === "Enter") {
+                e.preventDefault();
+                if(inputField.value.length === 0) {
+                    // Enter with empty field = newline character (ASCII 10)
+                    modal.setCloseable(true);
+                    modal.close();
+                    resolve(10);
+                } else {
+                    submit();
+                }
+            }
         };
 
         modal.append(
             <div className="container" style={{maxWidth: "400px"}}>
                 <main>
                     <h3>Input Requested</h3>
-                    <p>The program is requesting a byte value (0-255).</p>
+                    <p>The program is requesting a character input.</p>
                     {inputField}
                     {submitButton}
                 </main>
