@@ -1,0 +1,23 @@
+# Brainfuck.net
+
+> A free, browser-based Brainfuck interpreter, text encoder, and visual step-through debugger.
+
+Brainfuck.net lets users write, run, and debug Brainfuck code entirely in the browser. It features syntax highlighting with color-coded operators, a visual debugger that steps through execution one instruction at a time showing memory cells and pointer position, an ASCII table reference, and a text-to-Brainfuck encoder that generates optimized code using dynamic programming.
+
+Brainfuck is an esoteric programming language created by Urban Mueller in 1993. It operates on a 30,000-cell array of 8-bit integers using only 8 instructions: + - > < [ ] . ,
+
+## Features
+
+- Syntax highlighting for all 8 Brainfuck operators
+- Code execution with output display
+- Visual step-through debugger with memory cell grid and pointer visualization
+- Step forward, backward, and auto-play controls
+- User input support for the , (comma) operator via modal prompt
+- ASCII table (0-255) reference
+- Text-to-Brainfuck encoder with optimized code generation
+- Learn Brainfuck instruction reference
+
+## Links
+
+- [Website](https://brainfuck.net/)
+- [Source Code](https://github.com/RMJTromp/Brainfuck-Interpreter)

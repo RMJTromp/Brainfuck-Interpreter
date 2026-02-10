@@ -45,6 +45,7 @@
         "@parcel/transformer-jsonld": "^2.16.4",
         "@parcel/transformer-webmanifest": "^2.16.4",
         "parcel": "^2.16.4",
+        "parcel-reporter-static-files-copy": "^1.5.3",
         "postcss": "^8.5.6",
         "postcss-nested": "^7.0.2",
         "postcss-url": "^10.1.3",
