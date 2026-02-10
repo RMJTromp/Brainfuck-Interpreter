@@ -1,12 +1,3 @@
-export interface Steps {
-    /** Input */
-    input: string,
-    /** Max cells */
-    max_cells: number,
-    /** Steps */
-    steps: Step[]
-}
-
 export interface Step {
     /** Step index */
     index: number,
@@ -26,18 +17,23 @@ export default class Brainfuck {
     input = "";
     loopAnchors : number[] = [];
     result = "";
-    _steps = null;
+    private _onInputRequest : (() => Promise<number>) | null = null;
 
     constructor(input) {
         this.input = input;
     }
 
-    run() {
-        while(this.nextStep()) {}
+    onInputRequest(handler: () => Promise<number>) {
+        this._onInputRequest = handler;
+        return this;
+    }
+
+    async run() {
+        while(await this.nextStep()) {}
         return this.result;
     }
 
-    nextStep() {
+    async nextStep() {
         if(this.index >= this.input.length) return false;
 
         const operator = this.input[this.index];
@@ -63,41 +59,27 @@ export default class Brainfuck {
                 // remove the last anchor
                 this.loopAnchors.splice(this.loopAnchors.length - 1, 1);
         } else if(operator === ".") this.result += String.fromCharCode(this.cells[this.at]);
+        else if(operator === ",") {
+            if(this._onInputRequest) {
+                const value = await this._onInputRequest();
+                this.cells[this.at] = value & 255;
+            } else {
+                this.cells[this.at] = 0;
+            }
+        }
 
         this.index++;
 
         return true;
     }
 
-    get steps() : Steps {
-        if(this._steps === null) {
-            this._steps = {
-                input: this.input,
-                max_cells: 15,
-                steps: []
-            };
-
-            let bf = new Brainfuck(this.input);
-
-            this._steps.steps.push({
-                index: bf.index,
-                pointer: bf.at,
-                cells: [...bf.cells],
-                result: bf.result
-            });
-
-            while(bf.nextStep()) {
-                this._steps.steps.push({
-                    index: bf.index,
-                    pointer: bf.at,
-                    cells: [...bf.cells],
-                    result: bf.result
-                });
-            }
-
-            this._steps.max_cells = Math.max(15, Math.max(...this._steps.steps.map(step => step.cells.length)));
-        }
-        return this._steps;
+    snapshot() : Step {
+        return {
+            index: this.index,
+            pointer: this.at,
+            cells: [...this.cells],
+            result: this.result
+        };
     }
 
 }

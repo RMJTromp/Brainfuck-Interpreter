@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 @import url('codicon.css');
 
 .primary { --r: 88; --g: 101; --b: 242; --color: rgb(var(--r), var(--g), var(--b)) }
@@ -18,7 +18,7 @@ body {
     min-height: 100vh;
     display: grid;
 
-	> section {
+	> main {
 		display: flex;
 		justify-content: center;
 		margin: 30px 0;
@@ -29,7 +29,17 @@ body {
 			position: relative;
 			width: stretch;
 
-			> div.nav {
+			> h1 {
+				text-align: center;
+				font-family: 'Bebas Neue', sans-serif;
+				font-size: 28px;
+				font-weight: 400;
+				letter-spacing: 2px;
+				color: #DCDDDE;
+				margin-bottom: 10px;
+			}
+
+			> nav {
 				margin: 20px;
 				justify-content: center;
 				display: flex;
@@ -123,6 +133,7 @@ body {
 					min-height: 24px;
 					width: stretch;
 					max-width: 760px;
+					font-family: 'JetBrains Mono', monospace;
 
 					span:is([operator]) {
 						letter-spacing: 2px;
@@ -172,6 +183,7 @@ body {
 					min-height: 24px;
 					width: stretch;
 					max-width: 760px;
+					font-family: 'JetBrains Mono', monospace;
 
 					&:before {
 						content: ">";
@@ -316,6 +328,7 @@ textarea {
 	height: 75px;
 	resize: none;
 	color: #DCDDDE;
+	font-family: 'JetBrains Mono', monospace;
 
 	&.error {
 		border-bottom-color: rgba(237, 66, 69, .8);
@@ -324,6 +337,25 @@ textarea {
 	&::placeholder {
 		color: #4f5660;
 	}
+
+	&:focus {
+		outline: none;
+	}
+}
+
+input.input-field {
+	display: block;
+	background-color: #e3e3e30a;
+	border: none;
+	border-radius: 8px;
+	padding: 11px 20px;
+	margin-top: 10px;
+	border-bottom: 2px solid transparent;
+	color: #DCDDDE;
+	font-family: 'JetBrains Mono', monospace;
+	font-size: 14px;
+	width: 100%;
+	box-sizing: border-box;
 
 	&:focus {
 		outline: none;
