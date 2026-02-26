@@ -2,14 +2,33 @@ import Brainfuck from "./Brainfuck";
 import {h} from "dom-chef";
 import {saveSelection, restoreSelection} from "./Selection.js";
 import ModalElement from "./ModalElement";
+import {compress, decompress} from "./crabbo-rave";
+
+declare function plausible(event: string, options?: { props: Record<string, string> }): void;
+
+function toBase64Url(str: string): string {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(b64: string): string {
+    const padded = b64.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+}
 
 window.customElements.define('x-modal', ModalElement);
 
 const   textarea : HTMLTextAreaElement = document.querySelector("div.textarea"),
         runButton : HTMLButtonElement = document.querySelector('div.input button[data-action="run"]'),
-        debugButton : HTMLButtonElement = document.querySelector('div.input button[data-action="debug"]');
+        debugButton : HTMLButtonElement = document.querySelector('div.input button[data-action="debug"]'),
+        shareButton : HTMLButtonElement = document.querySelector('div.input button[data-action="share"]');
 
 let debug = null;
+let encoderTracked = false;
 
 let inp = <textarea onInput={() => do_generate()}>Hello World</textarea>,
     out = <textarea disabled={true}></textarea>;
@@ -19,8 +38,10 @@ const update = () => {
     textarea.innerHTML = colorizeBF(textarea.innerText);
     if(pos) restoreSelection(textarea, pos);
 
-    runButton.disabled = textarea.innerText.trim().length <= 0;
-    debugButton.disabled = textarea.innerText.trim().length <= 0;
+    const empty = textarea.innerText.trim().length <= 0;
+    runButton.disabled = empty;
+    debugButton.disabled = empty;
+    shareButton.disabled = empty;
 }
 
 const colorizeBF = (input, emphasize = false) => {
@@ -45,10 +66,19 @@ update();
 
 if(window.location.hash.length > 1) {
     try {
-        const code = decodeURIComponent(window.location.hash.substring(1));
+        const raw = window.location.hash.substring(1);
+        let code: string;
+        if (raw.includes('%')) {
+            // Legacy format: percent-encoded BF code
+            code = decodeURIComponent(raw);
+        } else {
+            // New format: base64url-encoded compressed BF
+            code = decompress(fromBase64Url(raw));
+        }
         if(code.trim().length > 0) {
             textarea.innerText = code;
             update();
+            plausible('Code Loaded from URL');
         }
     } catch(e) {}
 }
@@ -103,6 +133,7 @@ const requestInput = () : Promise<number> => {
 
 runButton.onclick = async (e) => {
     if(textarea.innerText.trim().length) {
+        plausible('Code Executed', { props: { code_length: String(textarea.innerText.replace(/[^+\-<>.,\[\]]/g, '').length) } });
         runButton.disabled = true;
         debugButton.disabled = true;
         let bf = new Brainfuck(textarea.innerText);
@@ -129,6 +160,7 @@ const exitDebug = () => {
 debugButton.onclick = async (e) => {
     if(textarea.innerText.trim().length) {
         if(debug === null) {
+            plausible('Debug Started', { props: { code_length: String(textarea.innerText.replace(/[^+\-<>.,\[\]]/g, '').length) } });
             runButton.disabled = true;
             debugButton.classList.remove("info");
             debugButton.classList.add("danger");
@@ -288,30 +320,24 @@ debugButton.onclick = async (e) => {
     }
 }
 
-(document.querySelector('button[data-action="learn"]') as HTMLButtonElement).onclick = (e) => {
-    const modal = new ModalElement(true);
-
-    modal.append(
-        <div className="container" style={{maxWidth: "800px"}}>
-            <main>
-                <h3>Learn Brainfuck</h3>
-                <p>Brainfuck is executed on a memory array. By default, it's a 30-thousand-cell-long array of 8-bit integers, but some other implementations are more flexible. There are two registers : Instruction pointer and Memory Pointer. Finally, there are 8 instructions:</p>
-                <br/>
-                <p>
-                    <i className="bf-instruction">+</i> and <i className="bf-instruction">-</i> increments or decrement the value of the element in the array which the pointer is pointing at. Once you go over 255 the value wraps back to 0, and when you go under it wraps back to 255.
-                    <br/><i className="bf-instruction">&lt;</i> and <i className="bf-instruction">&gt;</i> Moves increments or decrements the position of the pointer (moves the pointer to the left or right).
-                    <br/><i className="bf-instruction">.</i> prints out the ASCII character corresponding to the integer value stored where the pointer is currently pointing at.
-                    <br/><i className="bf-instruction">,</i> takes in a user-input and overrides the currently stored value.
-                    <br/><i className="bf-instruction">[</i> and <i className="bf-instruction">]</i> declares the start and end of a loop. The loop stops at the end of the loop when the value of where the pointer is pointing at is 0.
-                </p>
-            </main>
-        </div> as HTMLDivElement
-    );
-
-    modal.open();
+shareButton.onclick = async () => {
+    const code = textarea.innerText.trim();
+    if (code.length) {
+        const url = `${window.location.origin}/#${toBase64Url(compress(code))}`;
+        await navigator.clipboard.writeText(url);
+        plausible('Code Shared');
+        const icon = shareButton.querySelector("i");
+        shareButton.firstChild.textContent = "Copied! ";
+        icon.className = "codicon codicon-check";
+        setTimeout(() => {
+            shareButton.firstChild.textContent = "Share ";
+            icon.className = "codicon codicon-link";
+        }, 2000);
+    }
 }
 
 (document.querySelector('button[data-action="ascii-table"]') as HTMLButtonElement).onclick = (e) => {
+    plausible('ASCII Table Opened');
     const modal = new ModalElement(true);
 
     modal.append(
@@ -334,6 +360,7 @@ debugButton.onclick = async (e) => {
 }
 
 (document.querySelector('button[data-action="encode"]') as HTMLButtonElement).onclick = (e) => {
+    encoderTracked = false;
     const modal = new ModalElement(true);
 
     modal.append(
@@ -450,6 +477,10 @@ function do_generate() {
             a = generate(c);
         if(out) out.value = a;
         info.textContent = "text length = " + c.length + " bytes\ncode length = " + a.length + " bytes\nratio = " + (a.length / (c.length || 1)).toFixed(2)
+        if (!encoderTracked && c.length > 0) {
+            encoderTracked = true;
+            plausible('Text Encoded', { props: { text_length: String(c.length), code_length: String(a.length), ratio: (a.length / (c.length || 1)).toFixed(2) } });
+        }
     }
 }
 window.onload = function() {
@@ -457,3 +488,7 @@ window.onload = function() {
     start = new Date;
     setTimeout(next, 0);
 };
+
+document.querySelector('footer a[href*="github.com"]')?.addEventListener('click', () => {
+    plausible('Outbound Link: GitHub');
+});
