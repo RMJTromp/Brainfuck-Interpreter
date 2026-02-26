@@ -288,29 +288,6 @@ debugButton.onclick = async (e) => {
     }
 }
 
-(document.querySelector('button[data-action="learn"]') as HTMLButtonElement).onclick = (e) => {
-    const modal = new ModalElement(true);
-
-    modal.append(
-        <div className="container" style={{maxWidth: "800px"}}>
-            <main>
-                <h3>Learn Brainfuck</h3>
-                <p>Brainfuck is executed on a memory array. By default, it's a 30-thousand-cell-long array of 8-bit integers, but some other implementations are more flexible. There are two registers : Instruction pointer and Memory Pointer. Finally, there are 8 instructions:</p>
-                <br/>
-                <p>
-                    <i className="bf-instruction">+</i> and <i className="bf-instruction">-</i> increments or decrement the value of the element in the array which the pointer is pointing at. Once you go over 255 the value wraps back to 0, and when you go under it wraps back to 255.
-                    <br/><i className="bf-instruction">&lt;</i> and <i className="bf-instruction">&gt;</i> Moves increments or decrements the position of the pointer (moves the pointer to the left or right).
-                    <br/><i className="bf-instruction">.</i> prints out the ASCII character corresponding to the integer value stored where the pointer is currently pointing at.
-                    <br/><i className="bf-instruction">,</i> takes in a user-input and overrides the currently stored value.
-                    <br/><i className="bf-instruction">[</i> and <i className="bf-instruction">]</i> declares the start and end of a loop. The loop stops at the end of the loop when the value of where the pointer is pointing at is 0.
-                </p>
-            </main>
-        </div> as HTMLDivElement
-    );
-
-    modal.open();
-}
-
 (document.querySelector('button[data-action="ascii-table"]') as HTMLButtonElement).onclick = (e) => {
     const modal = new ModalElement(true);
 
