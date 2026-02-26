@@ -2,8 +2,23 @@ import Brainfuck from "./Brainfuck";
 import {h} from "dom-chef";
 import {saveSelection, restoreSelection} from "./Selection.js";
 import ModalElement from "./ModalElement";
+import {compress, decompress} from "./crabbo-rave";
 
 declare function plausible(event: string, options?: { props: Record<string, string> }): void;
+
+function toBase64Url(str: string): string {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(b64: string): string {
+    const padded = b64.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+}
 
 window.customElements.define('x-modal', ModalElement);
 
@@ -51,7 +66,15 @@ update();
 
 if(window.location.hash.length > 1) {
     try {
-        const code = decodeURIComponent(window.location.hash.substring(1));
+        const raw = window.location.hash.substring(1);
+        let code: string;
+        if (raw.includes('%')) {
+            // Legacy format: percent-encoded BF code
+            code = decodeURIComponent(raw);
+        } else {
+            // New format: base64url-encoded compressed BF
+            code = decompress(fromBase64Url(raw));
+        }
         if(code.trim().length > 0) {
             textarea.innerText = code;
             update();
@@ -300,7 +323,7 @@ debugButton.onclick = async (e) => {
 shareButton.onclick = async () => {
     const code = textarea.innerText.trim();
     if (code.length) {
-        const url = `${window.location.origin}/#${encodeURIComponent(code)}`;
+        const url = `${window.location.origin}/#${toBase64Url(compress(code))}`;
         await navigator.clipboard.writeText(url);
         plausible('Code Shared');
         const icon = shareButton.querySelector("i");
