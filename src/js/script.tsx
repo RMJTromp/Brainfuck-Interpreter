@@ -9,7 +9,8 @@ window.customElements.define('x-modal', ModalElement);
 
 const   textarea : HTMLTextAreaElement = document.querySelector("div.textarea"),
         runButton : HTMLButtonElement = document.querySelector('div.input button[data-action="run"]'),
-        debugButton : HTMLButtonElement = document.querySelector('div.input button[data-action="debug"]');
+        debugButton : HTMLButtonElement = document.querySelector('div.input button[data-action="debug"]'),
+        shareButton : HTMLButtonElement = document.querySelector('div.input button[data-action="share"]');
 
 let debug = null;
 let encoderTracked = false;
@@ -22,8 +23,10 @@ const update = () => {
     textarea.innerHTML = colorizeBF(textarea.innerText);
     if(pos) restoreSelection(textarea, pos);
 
-    runButton.disabled = textarea.innerText.trim().length <= 0;
-    debugButton.disabled = textarea.innerText.trim().length <= 0;
+    const empty = textarea.innerText.trim().length <= 0;
+    runButton.disabled = empty;
+    debugButton.disabled = empty;
+    shareButton.disabled = empty;
 }
 
 const colorizeBF = (input, emphasize = false) => {
@@ -291,6 +294,22 @@ debugButton.onclick = async (e) => {
             debuggerElement.append(cellsWrapper, controlsElement);
             document.querySelector("div.input").after(debuggerElement);
         } else exitDebug()
+    }
+}
+
+shareButton.onclick = async () => {
+    const code = textarea.innerText.trim();
+    if (code.length) {
+        const url = `${window.location.origin}/#${encodeURIComponent(code)}`;
+        await navigator.clipboard.writeText(url);
+        plausible('Code Shared');
+        const icon = shareButton.querySelector("i");
+        shareButton.firstChild.textContent = "Copied! ";
+        icon.className = "codicon codicon-check";
+        setTimeout(() => {
+            shareButton.firstChild.textContent = "Share ";
+            icon.className = "codicon codicon-link";
+        }, 2000);
     }
 }
 
