@@ -3,6 +3,8 @@ import {h} from "dom-chef";
 import {saveSelection, restoreSelection} from "./Selection.js";
 import ModalElement from "./ModalElement";
 
+declare function plausible(event: string, options?: { props: Record<string, string> }): void;
+
 window.customElements.define('x-modal', ModalElement);
 
 const   textarea : HTMLTextAreaElement = document.querySelector("div.textarea"),
@@ -10,6 +12,7 @@ const   textarea : HTMLTextAreaElement = document.querySelector("div.textarea"),
         debugButton : HTMLButtonElement = document.querySelector('div.input button[data-action="debug"]');
 
 let debug = null;
+let encoderTracked = false;
 
 let inp = <textarea onInput={() => do_generate()}>Hello World</textarea>,
     out = <textarea disabled={true}></textarea>;
@@ -49,6 +52,7 @@ if(window.location.hash.length > 1) {
         if(code.trim().length > 0) {
             textarea.innerText = code;
             update();
+            plausible('Code Loaded from URL');
         }
     } catch(e) {}
 }
@@ -103,6 +107,7 @@ const requestInput = () : Promise<number> => {
 
 runButton.onclick = async (e) => {
     if(textarea.innerText.trim().length) {
+        plausible('Code Executed', { props: { code_length: String(textarea.innerText.replace(/[^+\-<>.,\[\]]/g, '').length) } });
         runButton.disabled = true;
         debugButton.disabled = true;
         let bf = new Brainfuck(textarea.innerText);
@@ -129,6 +134,7 @@ const exitDebug = () => {
 debugButton.onclick = async (e) => {
     if(textarea.innerText.trim().length) {
         if(debug === null) {
+            plausible('Debug Started', { props: { code_length: String(textarea.innerText.replace(/[^+\-<>.,\[\]]/g, '').length) } });
             runButton.disabled = true;
             debugButton.classList.remove("info");
             debugButton.classList.add("danger");
@@ -289,6 +295,7 @@ debugButton.onclick = async (e) => {
 }
 
 (document.querySelector('button[data-action="ascii-table"]') as HTMLButtonElement).onclick = (e) => {
+    plausible('ASCII Table Opened');
     const modal = new ModalElement(true);
 
     modal.append(
@@ -311,6 +318,7 @@ debugButton.onclick = async (e) => {
 }
 
 (document.querySelector('button[data-action="encode"]') as HTMLButtonElement).onclick = (e) => {
+    encoderTracked = false;
     const modal = new ModalElement(true);
 
     modal.append(
@@ -427,6 +435,10 @@ function do_generate() {
             a = generate(c);
         if(out) out.value = a;
         info.textContent = "text length = " + c.length + " bytes\ncode length = " + a.length + " bytes\nratio = " + (a.length / (c.length || 1)).toFixed(2)
+        if (!encoderTracked && c.length > 0) {
+            encoderTracked = true;
+            plausible('Text Encoded', { props: { text_length: String(c.length), code_length: String(a.length), ratio: (a.length / (c.length || 1)).toFixed(2) } });
+        }
     }
 }
 window.onload = function() {
@@ -434,3 +446,7 @@ window.onload = function() {
     start = new Date;
     setTimeout(next, 0);
 };
+
+document.querySelector('footer a[href*="github.com"]')?.addEventListener('click', () => {
+    plausible('Outbound Link: GitHub');
+});

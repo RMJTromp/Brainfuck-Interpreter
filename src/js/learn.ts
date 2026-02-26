@@ -1,3 +1,5 @@
+declare function plausible(event: string, options?: { props: Record<string, string> }): void;
+
 const colorizeBF = (input: string) => {
     return input.replaceAll(/(<)(?![a\/])/g, `&lt;`)
         .replaceAll(/(?<!["a])(>)/g, `&gt;`)
@@ -32,9 +34,17 @@ document.addEventListener("DOMContentLoaded", () => {
         link.className = "primary";
         link.href = `/#${encodeURIComponent(bf)}`;
         link.textContent = "Try it out \u2192";
+        link.addEventListener("click", () => {
+            const section = pre.closest("section")?.querySelector("h2, h3")?.textContent ?? "Unknown";
+            plausible('Try It Out Clicked', { props: { section } });
+        });
 
         pre.parentNode!.insertBefore(wrapper, pre);
         wrapper.appendChild(pre);
         wrapper.appendChild(link);
+    });
+
+    document.querySelector('footer a[href*="github.com"]')?.addEventListener('click', () => {
+        plausible('Outbound Link: GitHub');
     });
 });
