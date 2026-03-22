@@ -1,3 +1,14 @@
+import {compress} from "./crabbo-rave";
+
+declare function plausible(event: string, options?: { props: Record<string, string> }): void;
+
+function toBase64Url(str: string): string {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 const colorizeBF = (input: string) => {
     return input.replaceAll(/(<)(?![a\/])/g, `&lt;`)
         .replaceAll(/(?<!["a])(>)/g, `&gt;`)
@@ -30,11 +41,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const link = document.createElement("a");
         link.className = "primary";
-        link.href = `/#${encodeURIComponent(bf)}`;
+        link.href = `/#${toBase64Url(compress(bf))}`;
         link.textContent = "Try it out \u2192";
+        link.addEventListener("click", () => {
+            const section = pre.closest("section")?.querySelector("h2, h3")?.textContent ?? "Unknown";
+            plausible('Try It Out Clicked', { props: { section } });
+        });
 
         pre.parentNode!.insertBefore(wrapper, pre);
         wrapper.appendChild(pre);
         wrapper.appendChild(link);
+    });
+
+    document.querySelector('footer a[href*="github.com"]')?.addEventListener('click', () => {
+        plausible('Outbound Link: GitHub');
     });
 });
