@@ -50,14 +50,27 @@ export default class Brainfuck {
             if(this.at < 30000) this.at++;
         } else if(operator === "<") {
             if(this.at > 0) this.at--;
-        } else if(operator === "[") this.loopAnchors.push(this.index);
-        else if(operator === "]") {
-            if(this.cells[this.at] !== 0)
-                // go back to the last set anchor
+        } else if(operator === "[") {
+            const currentValue = this.cells[this.at] ?? 0;
+            if(currentValue === 0) {
+                let depth = 1;
+                while(depth > 0) {
+                    this.index++;
+                    if(this.index >= this.input.length) throw new Error("Unmatched '[' in program");
+
+                    if(this.input[this.index] === "[") depth++;
+                    else if(this.input[this.index] === "]") depth--;
+                }
+            } else this.loopAnchors.push(this.index);
+        } else if(operator === "]") {
+            const currentValue = this.cells[this.at] ?? 0;
+            if(currentValue !== 0) {
+                if(this.loopAnchors.length === 0) throw new Error("Unmatched ']' in program");
                 this.index = this.loopAnchors[this.loopAnchors.length - 1];
-            else
-                // remove the last anchor
+            } else {
+                if(this.loopAnchors.length === 0) throw new Error("Unmatched ']' in program");
                 this.loopAnchors.splice(this.loopAnchors.length - 1, 1);
+            }
         } else if(operator === ".") this.result += String.fromCharCode(this.cells[this.at]);
         else if(operator === ",") {
             if(this._onInputRequest) {
