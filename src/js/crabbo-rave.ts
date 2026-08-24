@@ -95,6 +95,22 @@ function fromBase64Url(input: string): string {
     return new TextDecoder().decode(bytes);
 }
 
+function encodeRuns(input: string): string | null {
+    if (Array.from(input).some(char => !operators.includes(char))) return null;
+
+    return input.replace(/(.)\1*/g, run => run[0] + (run.length > 1 ? run.length.toString(36) : ''));
+}
+
+function decodeRuns(input: string): string {
+    if (!/^(?:[+\-<>\[\].,][0-9a-z]*)+$/.test(input)) throw new Error('Invalid run-length payload');
+
+    return input.replace(/([+\-<>\[\].,])([0-9a-z]*)/g, (_, operator, encodedCount) => {
+        const count = encodedCount ? parseInt(encodedCount, 36) : 1;
+        if (!Number.isSafeInteger(count) || count < 1) throw new Error('Invalid run-length payload');
+        return operator.repeat(count);
+    });
+}
+
 export function compress(input: string, literalIndexes: number[] = []) : string {
     let result = '';
     let i = 0;
@@ -147,15 +163,24 @@ export function decompress(input: string, literalIndexes = new Set<number>()): s
 export function encodeUrlPayload(input: string): string {
     const literalIndexes: number[] = [];
     const compressed = compress(input, literalIndexes);
-    const payload = toBase64Url(compressed);
+    let payload = toBase64Url(compressed);
 
     // Preserve the existing URL exactly unless compression loses information.
-    if (literalIndexes.length === 0) return payload;
+    if (literalIndexes.length > 0) {
+        payload += correctionMarker + literalIndexes.map(index => index.toString(36)).join('-');
+    }
 
-    return payload + correctionMarker + literalIndexes.map(index => index.toString(36)).join('-');
+    const runs = encodeRuns(input);
+    const runPayload = runs === null ? null : correctionMarker + toBase64Url(runs);
+
+    return runPayload !== null && runPayload.length < payload.length ? runPayload : payload;
 }
 
 export function decodeUrlPayload(input: string): string {
+    if (input.startsWith(correctionMarker)) {
+        return decodeRuns(fromBase64Url(input.substring(correctionMarker.length)));
+    }
+
     const markerIndex = input.indexOf(correctionMarker);
 
     if (markerIndex === -1) return decompress(fromBase64Url(input));
