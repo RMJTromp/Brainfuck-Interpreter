@@ -78,7 +78,24 @@ if(combinations.length > chars.length) throw new Error('Not enough characters to
 const $ : {[key: string]: string} = Object.fromEntries(combinations.map((combo, index) => [combo, chars[index]]));
 const $$ : {[key: string]: string} = Object.fromEntries(Object.entries($).map(([k, v]) => [v, k]));
 
-export function compress(input: string) : string {
+// Base64url never contains '.', so this cannot collide with an existing compressed URL.
+const correctionMarker = '.';
+
+function toBase64Url(input: string): string {
+    const bytes = new TextEncoder().encode(input);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(input: string): string {
+    const base64 = input.replace(/-/g, '+').replace(/_/g, '/');
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+}
+
+export function compress(input: string, literalIndexes: number[] = []) : string {
     let result = '';
     let i = 0;
 
@@ -98,6 +115,7 @@ export function compress(input: string) : string {
         }
 
         if (!matched) {
+            if ($$[input[i]]) literalIndexes.push(result.length);
             result += input[i];
             i++;
         }
@@ -106,14 +124,14 @@ export function compress(input: string) : string {
     return result;
 }
 
-export function decompress(input: string): string {
+export function decompress(input: string, literalIndexes = new Set<number>()): string {
     let result = '';
 
     for (let i = 0; i < input.length; i++) {
         const char = input[i];
         let found = false;
 
-        if ($$[char]) {
+        if (!literalIndexes.has(i) && $$[char]) {
             result += $$[char];
             found = true;
         }
@@ -124,4 +142,27 @@ export function decompress(input: string): string {
     }
 
     return result;
+}
+
+export function encodeUrlPayload(input: string): string {
+    const literalIndexes: number[] = [];
+    const compressed = compress(input, literalIndexes);
+    const payload = toBase64Url(compressed);
+
+    // Preserve the existing URL exactly unless compression loses information.
+    if (literalIndexes.length === 0) return payload;
+
+    return payload + correctionMarker + literalIndexes.map(index => index.toString(36)).join('-');
+}
+
+export function decodeUrlPayload(input: string): string {
+    const markerIndex = input.indexOf(correctionMarker);
+
+    if (markerIndex === -1) return decompress(fromBase64Url(input));
+
+    const corrections = input.substring(markerIndex + correctionMarker.length);
+    if (!/^[0-9a-z]+(?:-[0-9a-z]+)*$/.test(corrections)) throw new Error('Invalid URL corrections');
+    const literalIndexes = new Set(corrections.split('-').map(index => parseInt(index, 36)));
+
+    return decompress(fromBase64Url(input.substring(0, markerIndex)), literalIndexes);
 }
